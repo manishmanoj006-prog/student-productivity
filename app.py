@@ -1,7 +1,14 @@
+import os
 import streamlit as st
 import pandas as pd
 from pathlib import Path
 
+
+DB = "data/database.xlsx"
+
+if not os.path.exists(DB):
+    df = pd.DataFrame(columns=["Email", "Password"])
+    df.to_excel(DB, sheet_name="Users", index=False)
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="Login | Student Productivity", layout="centered")
 # 🔐 Capture Google OAuth redirect globally
@@ -66,6 +73,8 @@ with tab1:
                 st.session_state.email = email
                 st.success("Login successful!")
                 st.switch_page("pages/1_dashboard.py")
+users = pd.read_excel("data/database.xlsx", sheet_name="Users")
+st.write(users)
 
 # ================= REGISTER =================
 with tab2:
