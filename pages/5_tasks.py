@@ -112,3 +112,13 @@ st.markdown(f"""
     <div class="card-text">Completed: {completed} | Pending: {pending}</div>
 </div>
 """, unsafe_allow_html=True)
+new_task = {
+    "Email": email,
+    "Task": task_name,
+    "Priority": priority,
+    "Status": "Pending",
+    "Created_Date": TODAY,
+    "Last_Reminded": ""
+}
+
+tasks = pd.concat([tasks, pd.DataFrame([new_task])], ignore_index=True)
