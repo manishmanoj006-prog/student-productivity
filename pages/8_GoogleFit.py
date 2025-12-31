@@ -1,17 +1,14 @@
-import os
 import streamlit as st
 import requests
 import pandas as pd
 import datetime
 from google_auth_oauthlib.flow import Flow
-from dotenv import load_dotenv
 
-# ================= LOAD ENV =================
-load_dotenv()
+# ================== CONFIG ==================
+CLIENT_ID = st.secrets["GOOGLE_CLIENT_ID"]
+CLIENT_SECRET = st.secrets["GOOGLE_CLIENT_SECRET"]
 
-CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-REDIRECT_URI = "http://localhost:8501"
+REDIRECT_URI = "https://studentpro2.streamlit.app"
 DB = "data/database.xlsx"
 
 SCOPES = [
@@ -21,9 +18,14 @@ SCOPES = [
     "https://www.googleapis.com/auth/fitness.activity.read",
 ]
 
+# ================== PAGE ==================
 st.title("🔗 Google Fit Integration")
 
 EMAIL = st.session_state.get("email")
+if not EMAIL:
+    st.warning("Please login first")
+    st.stop()
+
 TODAY = datetime.date.today().strftime("%Y-%m-%d")
 
 # ================= HELPERS =================
@@ -44,24 +46,6 @@ def save_refresh_token(email, refresh_token):
     with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
         df.to_excel(writer, sheet_name="GoogleFitAuth", index=False)
 
-def save_steps(email, steps, date):
-    try:
-        df = pd.read_excel(DB, sheet_name="GoogleFitData")
-    except:
-        df = pd.DataFrame(columns=["email", "date", "steps"])
-
-    df["date"] = df["date"].astype(str)
-    df = df[~((df["email"] == email) & (df["date"] == date))]
-
-    df = pd.concat([df, pd.DataFrame([{
-        "email": email,
-        "date": date,
-        "steps": steps
-    }])], ignore_index=True)
-
-    with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
-        df.to_excel(writer, sheet_name="GoogleFitData", index=False)
-
 def fetch_steps(access_token):
     url = "https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate"
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -71,7 +55,7 @@ def fetch_steps(access_token):
         "aggregateBy": [{"dataTypeName": "com.google.step_count.delta"}],
         "bucketByTime": {"durationMillis": 86400000},
         "startTimeMillis": int(start.timestamp() * 1000),
-        "endTimeMillis": int(now.timestamp() * 1000)
+        "endTimeMillis": int(now.timestamp() * 1000),
     }
 
     res = requests.post(
@@ -88,7 +72,7 @@ if "code" in st.query_params:
 auth_df = load_auth_table()
 user_row = auth_df[auth_df["email"] == EMAIL]
 
-# ================= USER ALREADY CONNECTED =================
+# ================= ALREADY CONNECTED =================
 if not user_row.empty:
     st.success("✅ Google Fit connected")
 
@@ -116,8 +100,6 @@ if not user_row.empty:
                 pass
 
             st.metric("👣 Steps (last 24h)", steps)
-            save_steps(EMAIL, steps, TODAY)
-            st.success("✅ Steps saved to dashboard")
         else:
             st.error("❌ Token refresh failed")
             st.write(token_data)
