@@ -14,12 +14,14 @@ css_path = Path("assets/style.css")
 if css_path.exists():
     st.markdown(f"<style>{css_path.read_text()}</style>", unsafe_allow_html=True)
 
-# ================== DATABASE ==================
+# ================== DATABASE SETUP ==================
 DB = "data/database.xlsx"
 
-# Ensure DB + sheet exists
+# Ensure data folder exists
+os.makedirs("data", exist_ok=True)
+
+# Ensure database + Users sheet exists
 if not os.path.exists(DB):
-    os.makedirs("data", exist_ok=True)
     df = pd.DataFrame(
         columns=["Email", "Password", "Name", "MonthlyGoal", "MinAttendance"]
     )
@@ -35,8 +37,10 @@ def load_users():
     try:
         df = pd.read_excel(DB, sheet_name="Users")
         df.columns = df.columns.str.strip()
+        df["Email"] = df["Email"].astype(str).str.lower().str.strip()
+        df["Password"] = df["Password"].astype(str)
         return df
-    except:
+    except Exception:
         return pd.DataFrame(
             columns=["Email", "Password", "Name", "MonthlyGoal", "MinAttendance"]
         )
@@ -49,10 +53,10 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-tab1, tab2 = st.tabs(["Login", "Register"])
+tab_login, tab_register = st.tabs(["Login", "Register"])
 
 # ================== LOGIN ==================
-with tab1:
+with tab_login:
     login_email = st.text_input(
         "Email",
         key="login_email"
@@ -64,13 +68,10 @@ with tab1:
         key="login_password"
     ).strip()
 
-    if st.button("Login"):
+    if st.button("Login", key="login_btn"):
         if users.empty:
             st.error("No users found. Please register first.")
         else:
-            users["Email"] = users["Email"].astype(str).str.lower().str.strip()
-            users["Password"] = users["Password"].astype(str)
-
             match = users[
                 (users["Email"] == login_email) &
                 (users["Password"] == login_password)
@@ -85,7 +86,7 @@ with tab1:
                 st.switch_page("pages/1_dashboard.py")
 
 # ================== REGISTER ==================
-with tab2:
+with tab_register:
     reg_name = st.text_input(
         "Full Name",
         key="reg_name"
@@ -102,10 +103,10 @@ with tab2:
         key="reg_password"
     ).strip()
 
-    if st.button("Register"):
+    if st.button("Register", key="register_btn"):
         if not reg_name or not reg_email or not reg_password:
             st.warning("All fields are required")
-        elif reg_email in users["Email"].astype(str).str.lower().values:
+        elif reg_email in users["Email"].values:
             st.warning("Email already registered")
         else:
             new_user = pd.DataFrame([{
@@ -118,6 +119,7 @@ with tab2:
 
             users = pd.concat([users, new_user], ignore_index=True)
 
+            # Write fresh file (safe on Streamlit Cloud)
             with pd.ExcelWriter(DB, engine="openpyxl", mode="w") as writer:
                 users.to_excel(writer, sheet_name="Users", index=False)
 
