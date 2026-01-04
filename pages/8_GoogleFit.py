@@ -6,16 +6,14 @@ from google_auth_oauthlib.flow import Flow
 
 # ================== REDIRECT URI (LOCAL vs DEPLOYED) ==================
 # ✅ THIS IS THE MERGED CODE YOU ASKED FOR
-if st.runtime.exists():
-    REDIRECT_URI = "https://studentpro2.streamlit.app"
+if st.secrets.get("IS_CLOUD", False):
+    REDIRECT_URI = "https://student-appuctivity-magaudaxmuwptiwa9ar4dw.streamlit.app"
 else:
     REDIRECT_URI = "http://localhost:8501"
 
 # ================== CONFIG ==================
 CLIENT_ID = st.secrets["GOOGLE_CLIENT_ID"]
 CLIENT_SECRET = st.secrets["GOOGLE_CLIENT_SECRET"]
-
-DB = "data/database.xlsx"
 
 SCOPES = [
     "openid",
@@ -24,6 +22,18 @@ SCOPES = [
     "https://www.googleapis.com/auth/fitness.activity.read",
 ]
 
+flow = Flow.from_client_config(
+    {
+        "web": {
+            "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+        }
+    },
+    scopes=SCOPES,
+    redirect_uri=REDIRECT_URI
+)
 # ================== PAGE ==================
 st.title("🔗 Google Fit Integration")
 
@@ -163,6 +173,6 @@ else:
             auth_url, _ = flow.authorization_url(
                 prompt="consent",
                 access_type="offline"
-            )
+            ) 
 
             st.markdown(f"[👉 Login with Google]({auth_url})")
