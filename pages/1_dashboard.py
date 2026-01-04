@@ -72,11 +72,7 @@ total_tasks = len(user_tasks)
 progress_percent = int((completed_tasks / total_tasks) * 100) if total_tasks else 0
 
 # ================= GOOGLE FIT STEPS =================
-today_steps = int(
-    fit_data[
-        (fit_data["email"] == email) & (fit_data["date"] == today)
-    ]["steps"].sum()
-)
+today_steps = st.session_state.get("today_steps", 0)
 
 # ================= DASHBOARD CARDS =================
 c1, c2, c3, c4 = st.columns(4)
@@ -124,3 +120,5 @@ with st.sidebar:
         st.session_state.logged_in = False
         st.session_state.email = None
         st.switch_page("app.py")
+        st.write("DEBUG steps:", st.session_state.get("today_steps"))
+
