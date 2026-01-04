@@ -119,10 +119,18 @@ if is_connected:
 
         data = fetch_steps(token_data["access_token"])
         steps = 0
-        try:
-            steps = data["bucket"][0]["dataset"][0]["point"][0]["value"][0]["intVal"]
-        except:
-            pass
+        def extract_steps(data):
+            total_steps = 0
+            try:
+                for bucket in data.get("bucket", []):
+                    for dataset in bucket.get("dataset", []):
+                        for point in dataset.get("point", []):
+                            for val in point.get("value", []):
+                                total_steps += val.get("intVal", 0)
+            except Exception as e:
+                st.error(f"Step parsing error: {e}")
+            return total_steps
+
 
         save_steps(EMAIL, steps)
         st.session_state.today_steps = steps

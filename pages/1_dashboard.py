@@ -72,7 +72,23 @@ total_tasks = len(user_tasks)
 progress_percent = int((completed_tasks / total_tasks) * 100) if total_tasks else 0
 
 # ================= GOOGLE FIT STEPS =================
-today_steps = st.session_state.get("today_steps", 0)
+# ================= GOOGLE FIT STEPS (FROM EXCEL) =================
+# ================= GOOGLE FIT STEPS (FINAL SAFE) =================
+today_steps = None
+
+today_fit = fit_data[
+    (fit_data["email"] == email) &
+    (fit_data["date"] == today)
+]
+
+if not today_fit.empty:
+    today_steps = int(today_fit.iloc[0]["steps"])
+else:
+    # fallback: last available steps
+    user_fit = fit_data[fit_data["email"] == email].sort_values("date", ascending=False)
+    if not user_fit.empty:
+        today_steps = int(user_fit.iloc[0]["steps"])
+
 
 # ================= DASHBOARD CARDS =================
 c1, c2, c3, c4 = st.columns(4)
@@ -82,9 +98,10 @@ with c1:
     <div class="card">
         <div class="card-title">Habits</div>
         <div class="stat">{today_habits_done} / {total_habits}</div>
-        <div class="card-text">Completed today</div>
-        <div class="card-text">👣 {today_steps} steps</div>
-    </div>
+        <div class="card-text">
+        👣 {today_steps if today_steps is not None else "Not synced"} steps
+        </div>
+
     """, unsafe_allow_html=True)
 
 with c2:
@@ -121,4 +138,8 @@ with st.sidebar:
         st.session_state.email = None
         st.switch_page("app.py")
         st.write("DEBUG steps:", st.session_state.get("today_steps"))
+        with st.sidebar:
+         st.write("DEBUG: Google Fit Data")
+         st.dataframe(fit_data)
+
 
