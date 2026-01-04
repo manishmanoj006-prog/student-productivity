@@ -7,7 +7,7 @@ from google_auth_oauthlib.flow import Flow
 # ================== DATABASE ==================
 DB = "data/database.xlsx"
 
-# ================== REDIRECT URI (LOCAL vs CLOUD) ==================
+# ================== REDIRECT URI ==================
 if st.secrets.get("IS_CLOUD", False):
     REDIRECT_URI = "https://student-appuctivity-magaudaxmuwptiwa9ar4dw.streamlit.app"
 else:
@@ -46,13 +46,10 @@ def save_refresh_token(email, refresh_token):
     df = load_auth_table()
     df = df[df["email"] != email]
 
-    df = pd.concat(
-        [df, pd.DataFrame([{
-            "email": email,
-            "refresh_token": refresh_token
-        }])],
-        ignore_index=True
-    )
+    df = pd.concat([df, pd.DataFrame([{
+        "email": email,
+        "refresh_token": refresh_token
+    }])], ignore_index=True)
 
     with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
         df.to_excel(writer, sheet_name="GoogleFitAuth", index=False)
@@ -60,26 +57,20 @@ def save_refresh_token(email, refresh_token):
 
 def save_steps(email, steps):
     try:
-        df = pd.read_excel(DB, sheet_name="Steps")
+        df = pd.read_excel(DB, sheet_name="GoogleFitData")
     except:
         df = pd.DataFrame(columns=["email", "date", "steps"])
 
-    today = datetime.date.today().strftime("%Y-%m-%d")
+    df = df[~((df["email"] == email) & (df["date"] == TODAY))]
 
-    # Remove today's old entry
-    df = df[~((df["email"] == email) & (df["date"] == today))]
-
-    df = pd.concat(
-        [df, pd.DataFrame([{
-            "email": email,
-            "date": today,
-            "steps": steps
-        }])],
-        ignore_index=True
-    )
+    df = pd.concat([df, pd.DataFrame([{
+        "email": email,
+        "date": TODAY,
+        "steps": steps
+    }])], ignore_index=True)
 
     with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
-        df.to_excel(writer, sheet_name="Steps", index=False)
+        df.to_excel(writer, sheet_name="GoogleFitData", index=False)
 
 
 def fetch_steps(access_token):
@@ -100,24 +91,26 @@ def fetch_steps(access_token):
         headers={"Authorization": f"Bearer {access_token}"},
         json=body
     )
-
     return res.json()
 
 # ================== HANDLE OAUTH REDIRECT ==================
 if "code" in st.query_params:
     st.session_state.google_auth_code = st.query_params["code"]
-    st.query_params.clear()   # 🔥 critical
+    st.query_params.clear()
     st.rerun()
 
 # ================== CHECK CONNECTION ==================
 auth_df = load_auth_table()
 user_row = auth_df[auth_df["email"] == EMAIL]
+is_connected = not user_row.empty
 
-# ================== ALREADY CONNECTED ==================
-if not user_row.empty:
+# ================== CONNECTED USER ==================
+if is_connected:
     st.success("✅ Google Fit connected")
 
-    if st.button("📥 Fetch Steps"):
+    # AUTO FETCH ON FIRST LOGIN
+    if st.session_state.get("auto_fetch", True):
+        st.session_state.auto_fetch = False
         refresh_token = user_row.iloc[0]["refresh_token"]
 
         token_res = requests.post(
@@ -131,10 +124,8 @@ if not user_row.empty:
         )
 
         token_data = token_res.json()
-
         if "access_token" in token_data:
             data = fetch_steps(token_data["access_token"])
-
             steps = 0
             try:
                 steps = data["bucket"][0]["dataset"][0]["point"][0]["value"][0]["intVal"]
@@ -142,13 +133,35 @@ if not user_row.empty:
                 pass
 
             save_steps(EMAIL, steps)
-
             st.metric("👣 Steps (last 24h)", steps)
-            st.success("✅ Steps saved successfully")
 
+    # MANUAL FETCH BUTTON
+    if st.button("📥 Fetch Steps Again"):
+        refresh_token = user_row.iloc[0]["refresh_token"]
+
+        token_res = requests.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "client_id": CLIENT_ID,
+                "client_secret": CLIENT_SECRET,
+                "refresh_token": refresh_token,
+                "grant_type": "refresh_token",
+            }
+        )
+
+        token_data = token_res.json()
+        if "access_token" in token_data:
+            data = fetch_steps(token_data["access_token"])
+            steps = 0
+            try:
+                steps = data["bucket"][0]["dataset"][0]["point"][0]["value"][0]["intVal"]
+            except:
+                pass
+
+            save_steps(EMAIL, steps)
+            st.success(f"✅ Steps updated: {steps}")
         else:
-            st.error("❌ Token refresh failed")
-            st.write(token_data)
+            st.error("❌ Failed to refresh token")
 
 # ================== FIRST TIME USER ==================
 else:
@@ -165,9 +178,9 @@ else:
         )
 
         token_data = token_res.json()
-
         if "refresh_token" in token_data:
             save_refresh_token(EMAIL, token_data["refresh_token"])
+            st.session_state.auto_fetch = True
             st.success("✅ Google Fit connected successfully")
             st.rerun()
         else:
@@ -190,7 +203,6 @@ else:
             )
 
             flow.redirect_uri = REDIRECT_URI
-
             auth_url, _ = flow.authorization_url(
                 prompt="consent",
                 access_type="offline"
