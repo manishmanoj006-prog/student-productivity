@@ -71,8 +71,6 @@ completed_tasks = len(user_tasks[user_tasks["status"] == "Completed"])
 total_tasks = len(user_tasks)
 progress_percent = int((completed_tasks / total_tasks) * 100) if total_tasks else 0
 
-# ================= GOOGLE FIT STEPS =================
-# ================= GOOGLE FIT STEPS (FROM EXCEL) =================
 # ================= GOOGLE FIT STEPS (FINAL SAFE) =================
 today_steps = None
 
@@ -84,11 +82,10 @@ today_fit = fit_data[
 if not today_fit.empty:
     today_steps = int(today_fit.iloc[0]["steps"])
 else:
-    # fallback: last available steps
+    # fallback to last available data
     user_fit = fit_data[fit_data["email"] == email].sort_values("date", ascending=False)
     if not user_fit.empty:
         today_steps = int(user_fit.iloc[0]["steps"])
-
 
 # ================= DASHBOARD CARDS =================
 c1, c2, c3, c4 = st.columns(4)
@@ -99,12 +96,12 @@ with c1:
         <div class="card-title">Habits</div>
         <div class="stat">{today_habits_done} / {total_habits}</div>
         <div class="card-text">
-        👣 {today_steps if today_steps is not None else "Not synced"} steps
+            👣 {today_steps if today_steps is not None else "Not synced"} steps
         </div>
-        st.caption("ℹ️ Step count may lag behind Google Fit app due to sync delay")
-
-
+    </div>
     """, unsafe_allow_html=True)
+
+    st.caption("ℹ️ Step count may lag behind Google Fit app due to sync delay")
 
 with c2:
     st.markdown(f"""
@@ -133,15 +130,14 @@ with c4:
     </div>
     """, unsafe_allow_html=True)
 
-# ================= LOGOUT =================
+# ================= SIDEBAR =================
 with st.sidebar:
     if st.button("🚪 Logout"):
         st.session_state.logged_in = False
         st.session_state.email = None
         st.switch_page("app.py")
-        st.write("DEBUG steps:", st.session_state.get("today_steps"))
-        with st.sidebar:
-         st.write("DEBUG: Google Fit Data")
-         st.dataframe(fit_data)
 
-
+    # OPTIONAL DEBUG (remove after testing)
+    st.markdown("---")
+    st.write("DEBUG: Google Fit Data")
+    st.dataframe(fit_data)
