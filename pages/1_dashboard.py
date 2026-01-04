@@ -101,6 +101,8 @@ with c1:
         <div class="card-text">
         👣 {today_steps if today_steps is not None else "Not synced"} steps
         </div>
+        st.caption("ℹ️ Step count may lag behind Google Fit app due to sync delay")
+
 
     """, unsafe_allow_html=True)
 

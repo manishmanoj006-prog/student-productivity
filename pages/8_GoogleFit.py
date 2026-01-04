@@ -56,7 +56,6 @@ def save_steps(email, steps):
         df = pd.DataFrame(columns=["email", "date", "steps"])
 
     df = df[~((df["email"] == email) & (df["date"] == TODAY))]
-
     df = pd.concat([df, pd.DataFrame([{
         "email": email,
         "date": TODAY,
@@ -85,6 +84,39 @@ def fetch_steps(access_token):
     )
     return res.json()
 
+def extract_steps(data):
+    total_steps = 0
+    for bucket in data.get("bucket", []):
+        for dataset in bucket.get("dataset", []):
+            for point in dataset.get("point", []):
+                for val in point.get("value", []):
+                    total_steps += val.get("intVal", 0)
+    return total_steps
+
+def refresh_and_fetch():
+    refresh_token = user_row.iloc[0]["refresh_token"]
+
+    token_res = requests.post(
+        "https://oauth2.googleapis.com/token",
+        data={
+            "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
+            "refresh_token": refresh_token,
+            "grant_type": "refresh_token",
+        }
+    )
+
+    token_data = token_res.json()
+    if "access_token" not in token_data:
+        st.error("❌ Token refresh failed")
+        return
+
+    data = fetch_steps(token_data["access_token"])
+    steps = extract_steps(data)
+
+    save_steps(EMAIL, steps)
+    st.metric("👣 Steps (last 24h)", steps)
+
 # ---------- OAUTH REDIRECT ----------
 if "code" in st.query_params:
     st.session_state.google_auth_code = st.query_params["code"]
@@ -98,52 +130,12 @@ is_connected = not user_row.empty
 # ---------- CONNECTED ----------
 if is_connected:
     st.success("✅ Google Fit connected")
+    st.caption("ℹ️ Your Google Fit account is already linked")
 
-    def refresh_and_fetch():
-        refresh_token = user_row.iloc[0]["refresh_token"]
-
-        token_res = requests.post(
-            "https://oauth2.googleapis.com/token",
-            data={
-                "client_id": CLIENT_ID,
-                "client_secret": CLIENT_SECRET,
-                "refresh_token": refresh_token,
-                "grant_type": "refresh_token",
-            }
-        )
-
-        token_data = token_res.json()
-        if "access_token" not in token_data:
-            st.error("❌ Token refresh failed")
-            return
-
-        data = fetch_steps(token_data["access_token"])
-        steps = 0
-        def extract_steps(data):
-            total_steps = 0
-            try:
-                for bucket in data.get("bucket", []):
-                    for dataset in bucket.get("dataset", []):
-                        for point in dataset.get("point", []):
-                            for val in point.get("value", []):
-                                total_steps += val.get("intVal", 0)
-            except Exception as e:
-                st.error(f"Step parsing error: {e}")
-            return total_steps
-
-
-        save_steps(EMAIL, steps)
-        st.session_state.today_steps = steps
-        st.metric("👣 Steps (last 24h)", steps)
-
-    if st.session_state.get("auto_fetch", True):
-        st.session_state.auto_fetch = False
+    if st.button("🔄 Re-fetch Steps"):
         refresh_and_fetch()
 
-    if st.button("📥 Fetch Steps Again"):
-        refresh_and_fetch()
-
-# ---------- FIRST TIME USER ----------
+# ---------- NOT CONNECTED ----------
 else:
     if "google_auth_code" in st.session_state:
         token_res = requests.post(
@@ -160,7 +152,6 @@ else:
         token_data = token_res.json()
         if "refresh_token" in token_data:
             save_refresh_token(EMAIL, token_data["refresh_token"])
-            st.session_state.auto_fetch = True
             st.success("✅ Google Fit connected")
             st.rerun()
         else:
