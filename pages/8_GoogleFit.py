@@ -92,6 +92,9 @@ def fetch_steps(access_token):
 # ================= OAUTH REDIRECT =================
 if "code" in st.query_params:
     st.session_state.google_auth_code = st.query_params["code"]
+    st.query_params.clear()   # 🔥 VERY IMPORTANT
+    st.rerun()                # 🔥 FORCE STREAMLIT TO CONTINUE
+
 
 auth_df = load_auth_table()
 user_row = auth_df[auth_df["email"] == EMAIL]
@@ -146,9 +149,10 @@ else:
         token_data = token_res.json()
 
         if "refresh_token" in token_data:
-            save_refresh_token(EMAIL, token_data["refresh_token"])
-            st.success("✅ Google Fit connected successfully")
-            st.info("Reload this page to fetch steps")
+           save_refresh_token(EMAIL, token_data["refresh_token"])
+           st.success("✅ Google Fit connected successfully")
+           st.rerun()   # 🔥 immediately show connected state
+
         else:
             st.error("❌ Token error")
             st.write(token_data)
