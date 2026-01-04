@@ -71,7 +71,7 @@ completed_tasks = len(user_tasks[user_tasks["status"] == "Completed"])
 total_tasks = len(user_tasks)
 progress_percent = int((completed_tasks / total_tasks) * 100) if total_tasks else 0
 
-# ✅ STEPS (THIS WAS THE PROBLEM)
+# ================= GOOGLE FIT STEPS =================
 today_steps = int(
     fit_data[
         (fit_data["email"] == email) & (fit_data["date"] == today)
