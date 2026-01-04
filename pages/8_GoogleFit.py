@@ -4,11 +4,17 @@ import pandas as pd
 import datetime
 from google_auth_oauthlib.flow import Flow
 
+# ================== REDIRECT URI (LOCAL vs DEPLOYED) ==================
+# ✅ THIS IS THE MERGED CODE YOU ASKED FOR
+if st.runtime.exists():
+    REDIRECT_URI = "https://studentpro2.streamlit.app"
+else:
+    REDIRECT_URI = "http://localhost:8501"
+
 # ================== CONFIG ==================
 CLIENT_ID = st.secrets["GOOGLE_CLIENT_ID"]
 CLIENT_SECRET = st.secrets["GOOGLE_CLIENT_SECRET"]
 
-REDIRECT_URI = "https://studentpro2.streamlit.app"
 DB = "data/database.xlsx"
 
 SCOPES = [
@@ -35,19 +41,26 @@ def load_auth_table():
     except:
         return pd.DataFrame(columns=["email", "refresh_token"])
 
+
 def save_refresh_token(email, refresh_token):
     df = load_auth_table()
     df = df[df["email"] != email]
-    df = pd.concat([df, pd.DataFrame([{
-        "email": email,
-        "refresh_token": refresh_token
-    }])], ignore_index=True)
+
+    df = pd.concat(
+        [df, pd.DataFrame([{
+            "email": email,
+            "refresh_token": refresh_token
+        }])],
+        ignore_index=True
+    )
 
     with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
         df.to_excel(writer, sheet_name="GoogleFitAuth", index=False)
 
+
 def fetch_steps(access_token):
     url = "https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate"
+
     now = datetime.datetime.now(datetime.timezone.utc)
     start = now - datetime.timedelta(hours=24)
 
@@ -63,6 +76,7 @@ def fetch_steps(access_token):
         headers={"Authorization": f"Bearer {access_token}"},
         json=body
     )
+
     return res.json()
 
 # ================= OAUTH REDIRECT =================
@@ -93,6 +107,7 @@ if not user_row.empty:
 
         if "access_token" in token_data:
             data = fetch_steps(token_data["access_token"])
+
             steps = 0
             try:
                 steps = data["bucket"][0]["dataset"][0]["point"][0]["value"][0]["intVal"]
@@ -144,6 +159,7 @@ else:
             )
 
             flow.redirect_uri = REDIRECT_URI
+
             auth_url, _ = flow.authorization_url(
                 prompt="consent",
                 access_type="offline"
