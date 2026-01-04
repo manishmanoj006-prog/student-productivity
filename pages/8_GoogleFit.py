@@ -4,8 +4,10 @@ import pandas as pd
 import datetime
 from google_auth_oauthlib.flow import Flow
 
-# ================== REDIRECT URI (LOCAL vs DEPLOYED) ==================
-# ✅ THIS IS THE MERGED CODE YOU ASKED FOR
+# ================== DATABASE ==================
+DB = "data/database.xlsx"
+
+# ================== REDIRECT URI (LOCAL vs CLOUD) ==================
 if st.secrets.get("IS_CLOUD", False):
     REDIRECT_URI = "https://student-appuctivity-magaudaxmuwptiwa9ar4dw.streamlit.app"
 else:
@@ -22,18 +24,6 @@ SCOPES = [
     "https://www.googleapis.com/auth/fitness.activity.read",
 ]
 
-flow = Flow.from_client_config(
-    {
-        "web": {
-            "client_id": CLIENT_ID,
-            "client_secret": CLIENT_SECRET,
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-        }
-    },
-    scopes=SCOPES,
-    redirect_uri=REDIRECT_URI
-)
 # ================== PAGE ==================
 st.title("🔗 Google Fit Integration")
 
@@ -44,7 +34,7 @@ if not EMAIL:
 
 TODAY = datetime.date.today().strftime("%Y-%m-%d")
 
-# ================= HELPERS =================
+# ================== HELPERS ==================
 def load_auth_table():
     try:
         return pd.read_excel(DB, sheet_name="GoogleFitAuth")
@@ -68,6 +58,30 @@ def save_refresh_token(email, refresh_token):
         df.to_excel(writer, sheet_name="GoogleFitAuth", index=False)
 
 
+def save_steps(email, steps):
+    try:
+        df = pd.read_excel(DB, sheet_name="Steps")
+    except:
+        df = pd.DataFrame(columns=["email", "date", "steps"])
+
+    today = datetime.date.today().strftime("%Y-%m-%d")
+
+    # Remove today's old entry
+    df = df[~((df["email"] == email) & (df["date"] == today))]
+
+    df = pd.concat(
+        [df, pd.DataFrame([{
+            "email": email,
+            "date": today,
+            "steps": steps
+        }])],
+        ignore_index=True
+    )
+
+    with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
+        df.to_excel(writer, sheet_name="Steps", index=False)
+
+
 def fetch_steps(access_token):
     url = "https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate"
 
@@ -89,17 +103,17 @@ def fetch_steps(access_token):
 
     return res.json()
 
-# ================= OAUTH REDIRECT =================
+# ================== HANDLE OAUTH REDIRECT ==================
 if "code" in st.query_params:
     st.session_state.google_auth_code = st.query_params["code"]
-    st.query_params.clear()   # 🔥 VERY IMPORTANT
-    st.rerun()                # 🔥 FORCE STREAMLIT TO CONTINUE
+    st.query_params.clear()   # 🔥 critical
+    st.rerun()
 
-
+# ================== CHECK CONNECTION ==================
 auth_df = load_auth_table()
 user_row = auth_df[auth_df["email"] == EMAIL]
 
-# ================= ALREADY CONNECTED =================
+# ================== ALREADY CONNECTED ==================
 if not user_row.empty:
     st.success("✅ Google Fit connected")
 
@@ -127,12 +141,16 @@ if not user_row.empty:
             except:
                 pass
 
+            save_steps(EMAIL, steps)
+
             st.metric("👣 Steps (last 24h)", steps)
+            st.success("✅ Steps saved successfully")
+
         else:
             st.error("❌ Token refresh failed")
             st.write(token_data)
 
-# ================= FIRST TIME USER =================
+# ================== FIRST TIME USER ==================
 else:
     if "google_auth_code" in st.session_state:
         token_res = requests.post(
@@ -149,10 +167,9 @@ else:
         token_data = token_res.json()
 
         if "refresh_token" in token_data:
-           save_refresh_token(EMAIL, token_data["refresh_token"])
-           st.success("✅ Google Fit connected successfully")
-           st.rerun()   # 🔥 immediately show connected state
-
+            save_refresh_token(EMAIL, token_data["refresh_token"])
+            st.success("✅ Google Fit connected successfully")
+            st.rerun()
         else:
             st.error("❌ Token error")
             st.write(token_data)
@@ -177,6 +194,6 @@ else:
             auth_url, _ = flow.authorization_url(
                 prompt="consent",
                 access_type="offline"
-            ) 
+            )
 
             st.markdown(f"[👉 Login with Google]({auth_url})")
