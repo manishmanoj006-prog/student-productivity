@@ -109,13 +109,17 @@ def refresh_and_fetch():
     token_data = token_res.json()
     if "access_token" not in token_data:
         st.error("❌ Token refresh failed")
+        st.write(token_data)
         return
 
     data = fetch_steps(token_data["access_token"])
     steps = extract_steps(data)
 
-    save_steps(EMAIL, steps)
-    st.metric("👣 Steps (last 24h)", steps)
+    # 🔥 FORCE SAVE (even if steps = 0)
+    save_steps(EMAIL, int(steps))
+
+    st.success(f"✅ Synced {steps} steps for {TODAY}")
+
 
 # ---------- OAUTH REDIRECT ----------
 if "code" in st.query_params:
@@ -130,10 +134,10 @@ is_connected = not user_row.empty
 # ---------- CONNECTED ----------
 if is_connected:
     st.success("✅ Google Fit connected")
-    st.caption("ℹ️ Your Google Fit account is already linked")
 
     if st.button("🔄 Re-fetch Steps"):
         refresh_and_fetch()
+
 
 # ---------- NOT CONNECTED ----------
 else:
