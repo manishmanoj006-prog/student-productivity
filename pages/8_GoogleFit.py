@@ -67,13 +67,21 @@ def save_steps(email, steps):
 
 def fetch_steps(access_token):
     url = "https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate"
-    now = datetime.datetime.now(datetime.timezone.utc)
-    start = now - datetime.timedelta(hours=24)
+
+    # Local time
+    now = datetime.datetime.now()
+    start_of_day = now.replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
 
     body = {
-        "aggregateBy": [{"dataTypeName": "com.google.step_count.delta"}],
-        "bucketByTime": {"durationMillis": 86400000},
-        "startTimeMillis": int(start.timestamp() * 1000),
+        "aggregateBy": [
+            {"dataTypeName": "com.google.step_count.delta"}
+        ],
+        "bucketByTime": {
+            "durationMillis": 86400000  # 1 day
+        },
+        "startTimeMillis": int(start_of_day.timestamp() * 1000),
         "endTimeMillis": int(now.timestamp() * 1000),
     }
 
@@ -82,6 +90,7 @@ def fetch_steps(access_token):
         headers={"Authorization": f"Bearer {access_token}"},
         json=body
     )
+
     return res.json()
 
 def extract_steps(data):
