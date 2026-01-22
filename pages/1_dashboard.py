@@ -71,8 +71,8 @@ completed_tasks = len(user_tasks[user_tasks["status"] == "Completed"])
 total_tasks = len(user_tasks)
 progress_percent = int((completed_tasks / total_tasks) * 100) if total_tasks else 0
 
-# ================= GOOGLE FIT STEPS (FINAL SAFE) =================
-today_steps = None
+# ================= GOOGLE FIT STEPS (STRICT DAILY) =================
+today_steps = 0  # default reset
 
 today_fit = fit_data[
     (fit_data["email"] == email) &
@@ -81,11 +81,6 @@ today_fit = fit_data[
 
 if not today_fit.empty:
     today_steps = int(today_fit.iloc[0]["steps"])
-else:
-    # fallback to last available data
-    user_fit = fit_data[fit_data["email"] == email].sort_values("date", ascending=False)
-    if not user_fit.empty:
-        today_steps = int(user_fit.iloc[0]["steps"])
 
 # ================= DASHBOARD CARDS =================
 c1, c2, c3, c4 = st.columns(4)
@@ -96,12 +91,12 @@ with c1:
         <div class="card-title">Habits</div>
         <div class="stat">{today_habits_done} / {total_habits}</div>
         <div class="card-text">
-            👣 {today_steps if today_steps is not None else "Not synced"} steps
+            👣 {today_steps} steps
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.caption("ℹ️ Step count may lag behind Google Fit app due to sync delay")
+    st.caption("ℹ️ Step count resets daily and may lag due to Google Fit sync delay")
 
 with c2:
     st.markdown(f"""
@@ -137,7 +132,7 @@ with st.sidebar:
         st.session_state.email = None
         st.switch_page("app.py")
 
-    # OPTIONAL DEBUG (remove after testing)
+    # 🔍 DEBUG (REMOVE IN PRODUCTION)
     st.markdown("---")
     st.write("DEBUG: Google Fit Data")
     st.dataframe(fit_data)
