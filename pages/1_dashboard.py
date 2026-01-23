@@ -42,10 +42,11 @@ attendance = load_sheet("Attendance", ["email", "date", "period"])
 tasks = load_sheet("Tasks", ["email", "task", "status"])
 fit_data = load_sheet("GoogleFitData", ["email", "date", "steps"])
 
-# ================= NORMALIZE =================
-habit_log["date"] = habit_log["date"].astype(str)
-study_log["minutes"] = pd.to_numeric(study_log["minutes"], errors="coerce").fillna(0)
-fit_data["date"] = fit_data["date"].astype(str)
+# ================= NORMALIZE DATES (CRITICAL FIX) =================
+for df in [habit_log, study_log, attendance, fit_data]:
+    if "date" in df.columns:
+        df["date"] = pd.to_datetime(df["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+
 fit_data["steps"] = pd.to_numeric(fit_data["steps"], errors="coerce").fillna(0)
 
 # ================= CALCULATIONS =================
@@ -72,8 +73,6 @@ total_tasks = len(user_tasks)
 progress_percent = int((completed_tasks / total_tasks) * 100) if total_tasks else 0
 
 # ================= GOOGLE FIT STEPS (STRICT DAILY) =================
-today_steps = 0  # default reset
-
 today_fit = fit_data[
     (fit_data["email"] == email) &
     (fit_data["date"] == today)
@@ -81,6 +80,8 @@ today_fit = fit_data[
 
 if not today_fit.empty:
     today_steps = int(today_fit.iloc[0]["steps"])
+else:
+    today_steps = 0
 
 # ================= DASHBOARD CARDS =================
 c1, c2, c3, c4 = st.columns(4)
@@ -90,9 +91,7 @@ with c1:
     <div class="card">
         <div class="card-title">Habits</div>
         <div class="stat">{today_habits_done} / {total_habits}</div>
-        <div class="card-text">
-            👣 {today_steps} steps
-        </div>
+        <div class="card-text">👣 {today_steps} steps</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -131,8 +130,3 @@ with st.sidebar:
         st.session_state.logged_in = False
         st.session_state.email = None
         st.switch_page("app.py")
-
-    # 🔍 DEBUG (REMOVE IN PRODUCTION)
-    st.markdown("---")
-    st.write("DEBUG: Google Fit Data")
-    st.dataframe(fit_data)
