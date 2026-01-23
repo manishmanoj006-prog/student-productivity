@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 # ================= PAGE PROTECTION =================
@@ -20,11 +20,18 @@ with open(css_path) as f:
 
 # ================= DATABASE =================
 DB = "data/database.xlsx"
-today = datetime.now().strftime("%Y-%m-%d")
+
+# ✅ FIX 1: USE UTC DATE (MUST MATCH GOOGLE FIT)
+today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
 # ================= TITLE =================
 st.title("📘 Student Productivity")
 st.write("Welcome back 👋 Track your progress and stay consistent.")
+
+# ================= FORCE RELOAD BUTTON =================
+if st.button("🔄 Reload data"):
+    st.cache_data.clear()
+    st.rerun()
 
 # ================= LOAD DATA =================
 def load_sheet(name, cols):
@@ -42,10 +49,11 @@ attendance = load_sheet("Attendance", ["email", "date", "period"])
 tasks = load_sheet("Tasks", ["email", "task", "status"])
 fit_data = load_sheet("GoogleFitData", ["email", "date", "steps"])
 
-# ================= NORMALIZE DATES (CRITICAL FIX) =================
+# ================= NORMALIZE DATES =================
 for df in [habit_log, study_log, attendance, fit_data]:
     if "date" in df.columns:
-        df["date"] = pd.to_datetime(df["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+        df["date"] = pd.to_datetime(df["date"], errors="coerce") \
+                        .dt.strftime("%Y-%m-%d")
 
 fit_data["steps"] = pd.to_numeric(fit_data["steps"], errors="coerce").fillna(0)
 
@@ -72,16 +80,15 @@ completed_tasks = len(user_tasks[user_tasks["status"] == "Completed"])
 total_tasks = len(user_tasks)
 progress_percent = int((completed_tasks / total_tasks) * 100) if total_tasks else 0
 
-# ================= GOOGLE FIT STEPS (STRICT DAILY) =================
-today_fit = fit_data[
-    (fit_data["email"] == email) &
-    (fit_data["date"] == today)
-]
+# ================= GOOGLE FIT STEPS =================
+today_steps = (
+    fit_data[
+        (fit_data["email"] == email) &
+        (fit_data["date"] == today)
+    ]["steps"].sum()
+)
 
-if not today_fit.empty:
-    today_steps = int(today_fit.iloc[0]["steps"])
-else:
-    today_steps = 0
+today_steps = int(today_steps) if today_steps > 0 else 0
 
 # ================= DASHBOARD CARDS =================
 c1, c2, c3, c4 = st.columns(4)
@@ -130,3 +137,4 @@ with st.sidebar:
         st.session_state.logged_in = False
         st.session_state.email = None
         st.switch_page("app.py")
+

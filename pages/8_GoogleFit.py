@@ -29,7 +29,8 @@ if not EMAIL:
     st.warning("Please login first")
     st.stop()
 
-TODAY = datetime.now().strftime("%Y-%m-%d")
+TODAY = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
 
 # ---------- HELPERS ----------
 def load_auth_table():
