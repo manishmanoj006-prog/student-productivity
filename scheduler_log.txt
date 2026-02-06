@@ -1,0 +1,260 @@
+Scheduler ran at 2026-01-25 17:55:36.791596
+Scheduler ran at 2026-01-25 18:00:03.233246
+2026-01-25 18:01:46.469328 - Scheduler started
+2026-01-25 18:01:53.527725 - Email sent to manishmanoj006@gmail.com for task 11.54
+2026-01-25 18:01:53.647183 - Scheduler finished
+2026-01-26 08:04:07.787833 - Scheduler started
+2026-01-26 08:04:15.161889 - Email sent to manishmanoj006@gmail.com for task 11.54
+2026-01-26 08:04:18.744634 - Email sent to manishmanoj006@gmail.com for task 12.26m
+2026-01-26 08:04:18.873794 - Scheduler finished
+2026-01-26 11:10:55.215341 - Scheduler started
+2026-01-26 11:11:01.181755 - Email sent to manishmanoj006@gmail.com for task 11.54
+2026-01-26 11:11:01.279982 - Scheduler finished
+2026-01-26 17:32:35.135277 - Scheduler started
+2026-01-26 17:39:10.310079 - Scheduler started
+2026-01-26 17:39:10.926826 - Scheduler finished
+2026-01-26 18:41:02.304663 - Scheduler started
+2026-01-26 18:41:02.952737 - Scheduler finished
+2026-01-26 19:32:18.688592 - Scheduler started
+2026-01-26 19:32:19.310700 - Scheduler finished
+2026-01-26 19:39:09.647030 - Scheduler started
+2026-01-26 19:39:10.114250 - Scheduler finished
+2026-01-26 20:32:19.534118 - Scheduler started
+2026-01-26 20:32:20.472732 - Scheduler finished
+2026-01-26 20:39:10.435845 - Scheduler started
+2026-01-26 20:39:11.076628 - Scheduler finished
+2026-01-27 21:07:33.878490 - Scheduler started
+2026-01-27 21:07:41.739653 - Email sent to manishmanoj006@gmail.com for task 12.26m
+2026-01-27 21:07:41.876919 - Scheduler finished
+2026-01-27 21:32:19.410442 - Scheduler started
+2026-01-27 21:32:20.284425 - Scheduler finished
+2026-01-27 21:39:09.702918 - Scheduler started
+2026-01-27 21:39:10.423324 - Scheduler finished
+2026-01-28 19:11:19.544851 - Scheduler started
+2026-01-28 19:11:25.942492 - Email sent to manishmanoj006@gmail.com for task 12.26m
+2026-01-28 19:11:26.081475 - Scheduler finished
+2026-01-28 19:32:18.512224 - Scheduler started
+2026-01-28 19:32:18.980173 - Scheduler finished
+2026-01-28 19:39:10.238278 - Scheduler started
+2026-01-28 19:39:10.711930 - Scheduler finished
+2026-01-28 20:32:17.878338 - Scheduler started
+2026-01-28 20:39:09.450159 - Scheduler started
+2026-01-28 20:39:09.987216 - Scheduler finished
+2026-01-28 21:32:23.347576 - Scheduler started
+2026-01-28 21:32:36.270995 - Email sent to manishmanoj006@gmail.com for task drive
+2026-01-28 21:32:39.788338 - Email sent to manishmanoj006@gmail.com for task d2
+2026-01-28 21:32:39.909006 - Scheduler finished
+2026-01-28 21:39:14.751147 - Scheduler started
+2026-01-28 21:39:16.523180 - Scheduler finished
+2026-01-28 22:32:17.958571 - Scheduler started
+2026-01-28 22:39:11.047676 - Scheduler started
+2026-01-28 22:39:11.662185 - Scheduler finished
+2026-01-29 20:54:01.537269 - Scheduler started
+2026-01-29 20:54:02.903414 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-29 20:54:02.905120 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-29 20:54:02.963372 - Scheduler finished
+2026-01-29 21:39:12.401443 - Scheduler started
+2026-01-29 21:39:14.030866 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-29 21:39:14.032637 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-29 21:39:14.133468 - Scheduler finished
+2026-01-29 22:39:12.915760 - Scheduler started
+2026-01-29 22:39:14.726872 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-29 22:39:14.728394 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-29 22:39:14.778238 - Scheduler finished
+2026-01-30 19:41:54.359365 - Scheduler started
+2026-01-30 19:41:58.435413 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-30 19:41:58.437310 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-30 19:41:58.591530 - Scheduler finished
+2026-01-31 15:53:45.861007 - Scheduler started
+2026-01-31 15:53:47.801931 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-31 15:53:47.803416 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-31 15:53:47.920286 - Scheduler finished
+2026-01-31 16:53:40.867720 - Scheduler started
+2026-01-31 16:53:42.691956 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-31 16:53:42.693426 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-31 16:53:42.751546 - Scheduler finished
+2026-01-31 18:39:12.704944 - Scheduler started
+2026-01-31 18:39:14.592818 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-31 18:39:14.594404 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-31 18:39:14.644544 - Scheduler finished
+2026-01-31 19:39:10.120980 - Scheduler started
+2026-01-31 19:39:11.477425 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-31 19:39:11.478991 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-31 19:39:11.527606 - Scheduler finished
+2026-01-31 20:39:19.731642 - Scheduler started
+2026-01-31 20:39:22.633662 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-31 20:39:22.636006 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-01-31 20:39:22.759109 - Scheduler finished
+2026-02-01 07:38:41.846542 - Scheduler started
+2026-02-01 07:38:44.014427 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 07:38:44.016653 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 07:38:44.084263 - Scheduler finished
+2026-02-01 07:39:09.666761 - Scheduler started
+2026-02-01 07:39:10.834751 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 07:39:10.837340 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 07:39:10.890807 - Scheduler finished
+2026-02-01 08:39:12.730702 - Scheduler started
+2026-02-01 08:39:14.536684 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 08:39:14.538299 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 08:39:14.644748 - Scheduler finished
+2026-02-01 09:39:09.896854 - Scheduler started
+2026-02-01 09:39:11.282534 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 09:39:11.284067 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 09:39:11.333784 - Scheduler finished
+2026-02-01 15:39:10.514517 - Scheduler started
+2026-02-01 15:39:12.199237 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 15:39:12.202458 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 15:39:12.254808 - Scheduler finished
+2026-02-01 15:41:22.573813 - Scheduler started
+2026-02-01 16:39:11.265879 - Scheduler started
+2026-02-01 16:39:12.796502 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 16:39:12.798190 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 16:39:12.845207 - Scheduler finished
+2026-02-01 16:41:21.621018 - Scheduler started
+2026-02-01 16:41:22.532478 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 16:41:22.533972 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 16:41:22.576798 - Scheduler finished
+2026-02-01 17:39:10.309355 - Scheduler started
+2026-02-01 17:39:11.912893 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 17:39:11.914413 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 17:39:11.958018 - Scheduler finished
+2026-02-01 17:41:22.425057 - Scheduler started
+2026-02-01 17:41:23.749201 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 17:41:23.750886 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 17:41:23.795137 - Scheduler finished
+2026-02-01 18:39:10.302652 - Scheduler started
+2026-02-01 18:39:11.938670 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 18:39:11.940496 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 18:39:11.993999 - Scheduler finished
+2026-02-01 18:41:22.048031 - Scheduler started
+2026-02-01 18:41:23.234208 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 18:41:23.235832 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 18:41:23.281062 - Scheduler finished
+2026-02-01 20:32:47.213996 - Scheduler started
+2026-02-01 20:32:48.515221 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 20:32:48.516785 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 20:32:48.557328 - Scheduler finished
+2026-02-01 20:39:08.918137 - Scheduler started
+2026-02-01 20:39:10.227712 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 20:39:10.229266 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 20:39:10.274437 - Scheduler finished
+2026-02-01 20:41:22.443777 - Scheduler started
+2026-02-01 20:41:23.737950 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 20:41:23.739639 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-01 20:41:23.790802 - Scheduler finished
+2026-02-02 08:00:57.455049 - Scheduler started
+2026-02-02 08:01:00.530492 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-02 08:01:00.532961 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-02 08:01:00.651503 - Scheduler finished
+2026-02-02 08:39:10.111974 - Scheduler started
+2026-02-02 08:39:11.583250 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-02 08:39:11.585248 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-02 08:39:11.633263 - Scheduler finished
+2026-02-02 08:41:22.044196 - Scheduler started
+2026-02-02 08:41:23.122349 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-02 08:41:23.123922 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-02 08:41:23.172709 - Scheduler finished
+2026-02-03 05:54:10.454517 - Scheduler started
+2026-02-03 05:54:12.590366 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 05:54:12.591966 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 05:54:12.704494 - Scheduler finished
+2026-02-03 06:39:13.330212 - Scheduler started
+2026-02-03 06:39:15.565895 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 06:39:15.567503 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 06:39:15.625344 - Scheduler finished
+2026-02-03 06:41:21.829835 - Scheduler started
+2026-02-03 06:41:22.826581 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 06:41:22.828831 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 06:41:22.872550 - Scheduler finished
+2026-02-03 07:39:09.968738 - Scheduler started
+2026-02-03 07:39:11.464624 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 07:39:11.466356 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 07:39:11.536619 - Scheduler finished
+2026-02-03 07:41:22.424170 - Scheduler started
+2026-02-03 07:41:23.752204 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 07:41:23.754327 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 07:41:23.802849 - Scheduler finished
+2026-02-03 21:41:47.814025 - Scheduler started
+2026-02-03 21:41:50.531688 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 21:41:50.533412 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 21:41:50.704421 - Scheduler finished
+2026-02-03 22:39:10.198020 - Scheduler started
+2026-02-03 22:39:11.898728 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 22:39:11.900438 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 22:39:11.976049 - Scheduler finished
+2026-02-03 22:41:21.887149 - Scheduler started
+2026-02-03 22:41:23.021218 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 22:41:23.022757 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 22:41:23.067995 - Scheduler finished
+2026-02-03 23:39:13.121251 - Scheduler started
+2026-02-03 23:39:14.941919 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 23:39:14.943525 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 23:39:14.987933 - Scheduler finished
+2026-02-03 23:41:22.466440 - Scheduler started
+2026-02-03 23:41:23.703391 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 23:41:23.705179 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-03 23:41:23.770261 - Scheduler finished
+2026-02-04 08:12:17.330500 - Scheduler started
+2026-02-04 08:12:19.145352 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-04 08:12:19.147509 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-04 08:12:19.237903 - Scheduler finished
+2026-02-04 08:39:10.556029 - Scheduler started
+2026-02-04 08:39:11.994948 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-04 08:39:11.996777 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-04 08:39:12.049181 - Scheduler finished
+2026-02-04 08:41:22.015689 - Scheduler started
+2026-02-04 08:41:22.974251 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-04 08:41:22.975838 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-04 08:41:23.018177 - Scheduler finished
+2026-02-04 09:39:15.338320 - Scheduler started
+2026-02-04 09:39:17.265843 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-04 09:39:17.267370 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-04 09:39:17.321672 - Scheduler finished
+2026-02-04 09:41:24.601195 - Scheduler started
+2026-02-04 09:41:26.037651 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-04 09:41:26.039313 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-04 09:41:26.089215 - Scheduler finished
+2026-02-05 05:42:27.280258 - Scheduler started
+2026-02-05 05:42:29.611048 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-05 05:42:29.613237 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-05 05:42:29.739965 - Scheduler finished
+2026-02-05 06:39:12.890892 - Scheduler started
+2026-02-05 06:39:14.594078 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-05 06:39:14.596237 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-05 06:39:14.702759 - Scheduler finished
+2026-02-05 06:41:21.596019 - Scheduler started
+2026-02-05 06:41:22.502722 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-05 06:41:22.504297 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-05 06:41:22.556116 - Scheduler finished
+2026-02-05 07:39:12.621819 - Scheduler started
+2026-02-05 07:39:14.295423 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-05 07:39:14.297019 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-05 07:39:14.340899 - Scheduler finished
+2026-02-05 07:41:21.586565 - Scheduler started
+2026-02-05 07:41:22.454049 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-05 07:41:22.455789 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-05 07:41:22.495827 - Scheduler finished
+2026-02-06 07:15:35.061496 - Scheduler started
+2026-02-06 07:15:40.685655 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-06 07:15:40.762174 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-06 07:15:40.916429 - Scheduler finished
+2026-02-06 07:39:10.228641 - Scheduler started
+2026-02-06 07:39:12.036172 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-06 07:39:12.038473 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-06 07:39:12.121869 - Scheduler finished
+2026-02-06 07:41:22.835404 - Scheduler started
+2026-02-06 07:41:25.123228 - ERROR processing row 0: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-06 07:41:25.126785 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-06 07:41:25.200751 - Scheduler finished
+2026-02-06 08:39:16.071781 - Scheduler started
+2026-02-06 08:39:18.389445 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-06 08:39:18.441400 - Scheduler finished
+2026-02-06 08:41:22.620976 - Scheduler started
+2026-02-06 08:41:24.500294 - ERROR processing row 1: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-06 08:41:24.552334 - Scheduler finished
+2026-02-06 09:39:17.837960 - Scheduler started
+2026-02-06 09:39:23.904521 - ERROR processing row 2: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-06 09:39:24.113833 - Scheduler finished
+2026-02-06 09:41:24.940683 - Scheduler started
+2026-02-06 09:41:26.942718 - ERROR processing row 2: No secrets found. Valid paths for a secrets.toml file or secret directories are: C:\Users\anand\.streamlit\secrets.toml, D:\studentpro2\.streamlit\secrets.toml
+2026-02-06 09:41:27.021182 - Scheduler finished

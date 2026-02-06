@@ -66,5 +66,8 @@ Please complete it.
         tasks.loc[i, "Last_Reminded"] = now.strftime("%Y-%m-%d %H:%M:%S")
 
 # SAVE UPDATED TIME
-with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
-    tasks.to_excel(writer, sheet_name="Tasks", index=False)
+from utils.excel_manager import safe_write
+
+safe_write(DB, {
+    "Tasks": tasks
+})

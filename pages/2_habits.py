@@ -3,126 +3,113 @@ import pandas as pd
 from datetime import date, timedelta
 from pathlib import Path
 
-# ================= PAGE PROTECTION =================
-if "logged_in" not in st.session_state or not st.session_state.logged_in:
-    st.warning("Please login first.")
-    st.switch_page("app.py")
-
-email = st.session_state.email
-
 # ================= PAGE CONFIG =================
 st.set_page_config(page_title="Habits", layout="wide")
 
+# ================= AUTH =================
+if "logged_in" not in st.session_state or not st.session_state.logged_in:
+    st.switch_page("app.py")
+    st.stop()
+
+email = st.session_state.email.strip().lower()
+DB = Path("data/database.xlsx")
+today = date.today().strftime("%Y-%m-%d")
+
 # ================= LOAD CSS =================
 css_path = Path(__file__).parent.parent / "assets" / "style.css"
-with open(css_path) as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+if css_path.exists():
+    st.markdown(f"<style>{css_path.read_text()}</style>", unsafe_allow_html=True)
 
-# ================= DATABASE =================
-DB = "data/database.xlsx"
-today = date.today()
-today_str = today.strftime("%Y-%m-%d")
-
-# ================= TITLE =================
 st.title("✅ Habit Tracker")
 
-# ================= LOAD DATA =================
-def load_sheet(name, cols):
+# ==================================================
+# SAFE READ FUNCTION
+# ==================================================
+def read_sheet(sheet, cols):
     try:
-        return pd.read_excel(DB, sheet_name=name, dtype=str)
+        df = pd.read_excel(DB, sheet_name=sheet, dtype=str)
+        df.columns = df.columns.str.strip().str.lower()
+        return df
     except:
         return pd.DataFrame(columns=cols)
 
-habits = load_sheet("Habits", ["Habit"])
-habit_log = load_sheet("HabitLog", ["Email", "Date", "Habit"])
+# ==================================================
+# LOAD DATA
+# ==================================================
+habits = read_sheet("Habits", ["habit"])
+habit_log = read_sheet("HabitLog", ["email", "date", "habit"])
 
 # Normalize
-habits["Habit"] = habits["Habit"].astype(str).str.strip()
-habit_log["Email"] = habit_log["Email"].astype(str).str.strip().str.lower()
-habit_log["Date"] = habit_log["Date"].astype(str).str.strip()
-habit_log["Habit"] = habit_log["Habit"].astype(str).str.strip()
+habits["habit"] = habits["habit"].astype(str).str.strip()
+habit_log["email"] = habit_log["email"].astype(str).str.strip().str.lower()
+habit_log["habit"] = habit_log["habit"].astype(str).str.strip()
+habit_log["date"] = pd.to_datetime(
+    habit_log["date"], errors="coerce"
+).dt.strftime("%Y-%m-%d")
 
-# ================= STREAK FUNCTION =================
-def calculate_streak(log_df, user_email, habit_name):
-    dates = log_df[
-        (log_df["Email"] == user_email) &
-        (log_df["Habit"] == habit_name)
-    ]["Date"]
-
-    if dates.empty:
-        return 0
-
-    dates = sorted(set(pd.to_datetime(dates).dt.date))
-    streak = 0
-    current = today
-
-    for d in reversed(dates):
-        if d == current:
-            streak += 1
-            current -= timedelta(days=1)
-        else:
-            break
-
-    return streak
-
-# ================= TODAY PROGRESS =================
+# ==================================================
+# TODAY PROGRESS
+# ==================================================
 st.subheader("📊 Today's Progress")
 
 total_habits = len(habits)
+
 done_today = habit_log[
-    (habit_log["Email"] == email) &
-    (habit_log["Date"] == today_str)
+    (habit_log["email"] == email) &
+    (habit_log["date"] == today)
 ]
 
 done_count = len(done_today)
-progress = int((done_count / total_habits) * 100) if total_habits > 0 else 0
+progress = int((done_count / total_habits) * 100) if total_habits else 0
 
 st.progress(progress / 100)
 st.write(f"**{done_count} of {total_habits} habits completed ({progress}%)**")
 
 st.divider()
 
-# ================= ADD HABIT =================
-st.subheader("➕ Add New Habit (One Time)")
+# ==================================================
+# ADD NEW HABIT
+# ==================================================
+st.subheader("➕ Add New Habit")
 
-new_habit = st.text_input("Enter habit name (e.g., Morning Exercise)")
+new_habit = st.text_input("Habit name (e.g. Exercise)")
 
 if st.button("Add Habit"):
-    clean_habit = new_habit.strip()
+    clean = new_habit.strip()
 
-    if not clean_habit:
+    if not clean:
         st.warning("Habit name cannot be empty")
-    elif clean_habit in habits["Habit"].values:
+    elif clean.lower() in habits["habit"].str.lower().tolist():
         st.info("Habit already exists")
     else:
         habits = pd.concat(
-            [habits, pd.DataFrame([{"Habit": clean_habit}])],
+            [habits, pd.DataFrame([{"habit": clean}])],
             ignore_index=True
         )
+        with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as w:
+            habits.to_excel(w, sheet_name="Habits", index=False)
+            habit_log.to_excel(w, sheet_name="HabitLog", index=False)
 
-        with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
-            habits.to_excel(writer, sheet_name="Habits", index=False)
-            habit_log.to_excel(writer, sheet_name="HabitLog", index=False)
-
-        st.success("Habit added successfully!")
+        st.success("Habit added ✅")
         st.rerun()
 
 st.divider()
 
-# ================= MARK TODAY HABITS =================
+# ==================================================
+# MARK TODAY'S HABITS
+# ==================================================
 st.subheader("📝 Mark Today's Habits")
 
 if habits.empty:
-    st.info("Add your first habit above.")
+    st.info("No habits added yet.")
     st.stop()
 
-for habit in habits["Habit"]:
-    streak = calculate_streak(habit_log, email, habit)
+for habit in habits["habit"]:
 
     already_done = (
-        (habit_log["Email"] == email) &
-        (habit_log["Date"] == today_str) &
-        (habit_log["Habit"] == habit)
+        (habit_log["email"] == email) &
+        (habit_log["habit"] == habit) &
+        (habit_log["date"] == today)
     ).any()
 
     col1, col2 = st.columns([4, 1])
@@ -131,46 +118,63 @@ for habit in habits["Habit"]:
         if already_done:
             st.checkbox(habit, value=True, disabled=True)
         else:
-            if st.checkbox(habit, key=f"{habit}_{today_str}"):
+            if st.checkbox(habit, key=f"{habit}_{today}"):
                 habit_log = pd.concat(
                     [habit_log, pd.DataFrame([{
-                        "Email": email,
-                        "Date": today_str,
-                        "Habit": habit
+                        "email": email,
+                        "habit": habit,
+                        "date": today
                     }])],
                     ignore_index=True
                 )
 
-                with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
-                    habits.to_excel(writer, sheet_name="Habits", index=False)
-                    habit_log.to_excel(writer, sheet_name="HabitLog", index=False)
+                with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as w:
+                    habits.to_excel(w, sheet_name="Habits", index=False)
+                    habit_log.to_excel(w, sheet_name="HabitLog", index=False)
 
-                st.success(f"Marked '{habit}' as completed today!")
+                st.success(f"Marked '{habit}' as done ✅")
                 st.rerun()
 
     with col2:
-        st.markdown(f"🔥 **{streak} days**")
+        # -------- STREAK --------
+        dates = habit_log[
+            (habit_log["email"] == email) &
+            (habit_log["habit"] == habit)
+        ]["date"]
 
-# ================= WEEKLY SUMMARY =================
+        streak = 0
+        current = date.today()
+
+        for d in sorted(pd.to_datetime(dates, errors="coerce").dt.date, reverse=True):
+            if d == current:
+                streak += 1
+                current -= timedelta(days=1)
+            else:
+                break
+
+        st.markdown(f"🔥 **{streak}**")
+
+# ==================================================
+# WEEKLY SUMMARY
+# ==================================================
 st.divider()
 st.subheader("📅 Last 7 Days Summary")
 
 last_7_days = [
-    (today - timedelta(days=i)).strftime("%Y-%m-%d")
+    (date.today() - timedelta(days=i)).strftime("%Y-%m-%d")
     for i in range(6, -1, -1)
 ]
 
 weekly_data = []
 
-for habit in habits["Habit"]:
+for habit in habits["habit"]:
     row = {"Habit": habit}
     for d in last_7_days:
         row[d] = "✅" if (
-            (habit_log["Email"] == email) &
-            (habit_log["Habit"] == habit) &
-            (habit_log["Date"] == d)
+            (habit_log["email"] == email) &
+            (habit_log["habit"] == habit) &
+            (habit_log["date"] == d)
         ).any() else "❌"
     weekly_data.append(row)
 
-weekly_df = pd.DataFrame(weekly_data)
-st.dataframe(weekly_df, use_container_width=True)
+st.dataframe(pd.DataFrame(weekly_data), use_container_width=True)

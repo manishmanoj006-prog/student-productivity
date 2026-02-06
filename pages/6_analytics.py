@@ -2,6 +2,26 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
+import streamlit as st
+def load_sheet_safe(sheet_name, expected_cols):
+    try:
+        df = pd.read_excel(DB, sheet_name=sheet_name)
+    except:
+        return pd.DataFrame(columns=expected_cols)
+
+    df.columns = [
+        c.strip().lower() if isinstance(c, str) else c
+        for c in df.columns
+    ]
+
+    if list(df.columns) != expected_cols:
+        return pd.DataFrame(columns=expected_cols)
+
+    return df
+
+if "logged_in" not in st.session_state or not st.session_state.logged_in:
+    st.warning("Please login first.")
+    st.switch_page("app.py")
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(page_title="Analytics", layout="wide")

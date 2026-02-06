@@ -1,6 +1,11 @@
 import streamlit as st
 import pandas as pd
 from pathlib import Path
+import streamlit as st
+
+if "logged_in" not in st.session_state or not st.session_state.logged_in:
+    st.warning("Please login first.")
+    st.switch_page("app.py")
 
 # ================= PAGE PROTECTION =================
 if "logged_in" not in st.session_state or not st.session_state.logged_in:
@@ -81,11 +86,15 @@ if st.button("💾 Save Settings"):
     users.loc[idx, "monthlygoal"] = str(monthly_goal)
     users.loc[idx, "minattendance"] = str(min_attendance)
 
-    with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
-        users.to_excel(writer, sheet_name="Users", index=False)
+    from utils.excel_utils import safe_write
+
+    safe_write(DB, {
+        "Users": users
+})
+
 
         # Preserve other sheets safely
-        for sheet in ["Habits", "HabitLog", "StudyLog", "Attendance", "Tasks"]:
+    for sheet in ["Habits", "HabitLog", "StudyLog", "Attendance", "Tasks"]:
             try:
                 pd.read_excel(DB, sheet_name=sheet).to_excel(
                     writer, sheet_name=sheet, index=False

@@ -3,114 +3,140 @@ import pandas as pd
 from datetime import datetime, date, time
 from pathlib import Path
 
-# ---------------- PAGE CONFIG ----------------
-st.set_page_config(page_title="Attendance", layout="wide")
+from utils.excel_utils import safe_write
 
-# ---------------- LOAD CSS ----------------
-css_path = Path(__file__).parent.parent / "assets" / "style.css"
-with open(css_path) as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+def load_sheet_safe(sheet_name, expected_cols):
+    try:
+        df = pd.read_excel(DB, sheet_name=sheet_name)
+    except:
+        return pd.DataFrame(columns=expected_cols)
 
-# ---------------- SESSION CHECK ----------------
-if "email" not in st.session_state or not st.session_state.email:
+    df.columns = [
+        c.strip().lower() if isinstance(c, str) else c
+        for c in df.columns
+    ]
+
+    if list(df.columns) != expected_cols:
+        return pd.DataFrame(columns=expected_cols)
+
+    return df
+
+# ================= AUTH CHECK =================
+if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.warning("Please login first.")
     st.switch_page("app.py")
     st.stop()
 
-email = st.session_state.email
+email = st.session_state.email.strip().lower()
+
+# ================= PAGE CONFIG =================
+st.set_page_config(page_title="Attendance", layout="wide")
+
+# ================= LOAD CSS =================
+css_path = Path(__file__).parent.parent / "assets" / "style.css"
+if css_path.exists():
+    st.markdown(f"<style>{css_path.read_text()}</style>", unsafe_allow_html=True)
+
+# ================= CONSTANTS =================
 DB = "data/database.xlsx"
 TODAY = date.today().strftime("%Y-%m-%d")
 NOW = datetime.now().time()
 
-# ---------------- LOAD DATA ----------------
+# ================= LOAD USERS =================
 try:
-    attendance = pd.read_excel(DB, sheet_name="Attendance")
+    users = pd.read_excel(DB, sheet_name="Users", dtype=str)
 except:
-    attendance = pd.DataFrame(columns=["Email", "Date", "Period"])
+    users = pd.DataFrame(columns=["email", "attendance"])
 
-users = pd.read_excel(DB, sheet_name="Users")
+# normalize columns
+users.columns = users.columns.str.strip().str.lower()
 
-# ---------------- TITLE ----------------
-st.title("🗓 Attendance Tracker")
-st.write("Mark your attendance during the active class periods.")
+if "email" not in users.columns:
+    users["email"] = ""
 
-# ---------------- PERIOD DEFINITIONS ----------------
+if "attendance" not in users.columns:
+    users["attendance"] = "0"
+
+users["email"] = users["email"].astype(str).str.strip().str.lower()
+users["attendance"] = pd.to_numeric(users["attendance"], errors="coerce").fillna(0).astype(int)
+
+user_row = users[users["email"] == email]
+attendance_score = int(user_row.iloc[0]["attendance"]) if not user_row.empty else 0
+
+# ================= LOAD ATTENDANCE LOG =================
+try:
+    attendance_log = pd.read_excel(DB, sheet_name="Attendance", dtype=str)
+except:
+    attendance_log = pd.DataFrame(columns=["email", "date", "period"])
+
+attendance_log.columns = attendance_log.columns.str.strip().str.lower()
+attendance_log["email"] = attendance_log["email"].astype(str).str.strip().str.lower()
+
+# ================= PERIODS =================
+from datetime import time
+
 periods = {
-    "Period 1 (1:05 – 2:00 PM)": (time(13, 5), time(14, 0)),
-    "Period 2 (2:00 – 3:00 PM)": (time(14, 0), time(15, 00)),
-    "Period 3 (3:00 – 3:55 PM)": (time(15, 00), time(15, 55)),
-
-    # 15-minute break: 3:50 – 4:15 PM
-
-    "Period 4 (4:15 – 5:05 PM)": (time(16, 15), time(17, 5)),
-    "Period 5 (5:05 – 6:00 PM)": (time(17, 5), time(18, 00)),
+    "Period 1 (08:00 – 08:55)": (time(8, 0), time(8, 55)),
+    "Period 2 (08:55 – 09:50)": (time(8, 55), time(9, 50)),
+    "Break (09:50 – 10:05)": (time(9, 50), time(10, 5)),
+    "Period 3 (10:05 – 11:00)": (time(10, 5), time(11, 0)),
+    "Period 4 (11:00 – 11:55)": (time(11, 0), time(11, 55)),
+    "Period 5 (11:55 – 13:00)": (time(11, 55), time(13, 0)),
 }
 
 
-# ---------------- TODAY STATUS ----------------
-today_attendance = attendance[
-    (attendance["Email"] == email) &
-    (attendance["Date"] == TODAY)
+# ================= TODAY STATUS =================
+today_att = attendance_log[
+    (attendance_log["email"] == email) &
+    (attendance_log["date"] == TODAY)
 ]
 
-st.markdown(f"""
-<div class="card">
-    <div class="card-title">📌 Today's Attendance</div>
-    <div class="stat">{len(today_attendance)} / 5</div>
-</div>
-""", unsafe_allow_html=True)
+st.title("🗓 Attendance Tracker")
+st.metric("Today's Attendance", f"{len(today_att)} / 5")
 
-st.divider()
+# ================= MARK ATTENDANCE =================
+valid_periods = [
+    p for p, (s, e) in periods.items()
+    if s <= NOW <= e and p not in today_att["period"].values
+]
 
-# ---------------- VALID PERIODS ----------------
-valid_periods = []
+if valid_periods:
+    selected = st.selectbox("Select Period", valid_periods)
 
-for period, (start, end) in periods.items():
-    if start <= NOW <= end and period not in today_attendance["Period"].values:
-        valid_periods.append(period)
+    if st.button("📍 Mark Attendance"):
+        new_row = pd.DataFrame([{
+            "email": email,
+            "date": TODAY,
+            "period": selected
+        }])
 
-st.subheader("✅ Mark Attendance")
+        attendance_log = pd.concat([attendance_log, new_row], ignore_index=True)
 
-if not valid_periods:
-    st.info("Attendance can only be marked during active class periods.")
-    st.stop()
+        if user_row.empty:
+            users = pd.concat([users, pd.DataFrame([{
+                "email": email,
+                "attendance": 1
+            }])], ignore_index=True)
+        else:
+            users.loc[users["email"] == email, "attendance"] = attendance_score + 1
 
-selected_period = st.selectbox("Select Current Period", valid_periods)
+        safe_write(DB, {
+            "Users": users,
+            "Attendance": attendance_log
+        })
 
-# ---------------- MARK ATTENDANCE ----------------
-if st.button("📍 Mark Attendance"):
-    if len(today_attendance) >= 5:
-        st.error("Maximum 5 periods already marked today.")
-        st.stop()
-
-    new_row = pd.DataFrame([{
-        "Email": email,
-        "Date": TODAY,
-        "Period": selected_period
-    }])
-
-    attendance = pd.concat([attendance, new_row], ignore_index=True)
-
-    with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
-        users.to_excel(writer, sheet_name="Users", index=False)
-        attendance.to_excel(writer, sheet_name="Attendance", index=False)
-
-    st.success(f"Attendance marked for {selected_period}")
-    st.rerun()
-
-# ---------------- OVERALL ATTENDANCE ----------------
-st.divider()
-st.subheader("📊 Attendance Summary")
-
-total_days = attendance[attendance["Email"] == email]["Date"].nunique()
-total_marked = attendance[attendance["Email"] == email].shape[0]
-
-possible = total_days * 5 if total_days > 0 else 1
-attendance_percent = (total_marked / possible) * 100
-
-st.metric("Overall Attendance %", f"{attendance_percent:.1f}%")
-
-if attendance_percent < 75:
-    st.warning("⚠ Attendance below 75%. Please improve.")
+        st.success("Attendance marked")
+        st.rerun()
 else:
-    st.success("✅ Attendance is healthy!")
+    st.info("No active periods right now.")
+
+# ================= SUMMARY =================
+st.divider()
+
+user_all = attendance_log[attendance_log["email"] == email]
+total_days = user_all["date"].nunique()
+total_periods = user_all.shape[0]
+possible = max(total_days * 5, 1)
+
+percent = (total_periods / possible) * 100
+st.metric("Overall Attendance %", f"{percent:.1f}%")
