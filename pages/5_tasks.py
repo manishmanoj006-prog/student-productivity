@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 from pathlib import Path
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(page_title="Tasks", layout="wide")
@@ -21,6 +24,61 @@ email = st.session_state.email
 DB = "data/database.xlsx"
 TODAY = date.today().strftime("%Y-%m-%d")
 
+# ---------------- EMAIL CONFIG ----------------
+SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
+APP_PASSWORD = st.secrets["APP_PASSWORD"]
+
+def send_task_email(receiver_email, task, priority):
+
+    # No mail for low priority
+    if priority == "Low":
+        return
+
+    if priority == "High":
+        subject = "🚨 HIGH PRIORITY TASK ALERT"
+        body = f"""
+Hello,
+
+You have a HIGH PRIORITY task pending.
+
+Task: {task}
+
+Please complete it as soon as possible.
+
+- Student Productivity Tracker
+"""
+    else:
+        subject = "Task Reminder"
+        body = f"""
+Hello,
+
+You added a task:
+
+Task: {task}
+Priority: Medium
+
+Try to complete it today.
+
+- Student Productivity Tracker
+"""
+
+    try:
+        msg = MIMEMultipart()
+        msg["From"] = SENDER_EMAIL
+        msg["To"] = receiver_email
+        msg["Subject"] = subject
+
+        msg.attach(MIMEText(body, "plain"))
+
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(SENDER_EMAIL, APP_PASSWORD)
+        server.send_message(msg)
+        server.quit()
+
+    except Exception as e:
+        st.error("Email notification failed.")
+
 # ---------------- LOAD DATA ----------------
 try:
     tasks = pd.read_excel(DB, sheet_name="Tasks")
@@ -29,7 +87,11 @@ except:
         "Email", "Task", "Priority", "Status", "Created_Date"
     ])
 
-users = pd.read_excel(DB, sheet_name="Users")
+# SAFE USER LOAD
+try:
+    users = pd.read_excel(DB, sheet_name="Users")
+except:
+    users = pd.DataFrame(columns=["Email", "Password"])
 
 # ---------------- TITLE ----------------
 st.title("📋 Mandatory Tasks")
@@ -54,6 +116,9 @@ if st.button("Add Task"):
         }])
 
         tasks = pd.concat([tasks, new_task], ignore_index=True)
+
+        # ---- SEND EMAIL HERE ----
+        send_task_email(email, task_name, priority)
 
         with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
             users.to_excel(writer, sheet_name="Users", index=False)
