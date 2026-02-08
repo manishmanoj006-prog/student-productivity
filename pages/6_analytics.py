@@ -2,36 +2,16 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
-import streamlit as st
-def load_sheet_safe(sheet_name, expected_cols):
-    try:
-        df = pd.read_excel(DB, sheet_name=sheet_name)
-    except:
-        return pd.DataFrame(columns=expected_cols)
-
-    df.columns = [
-        c.strip().lower() if isinstance(c, str) else c
-        for c in df.columns
-    ]
-
-    if list(df.columns) != expected_cols:
-        return pd.DataFrame(columns=expected_cols)
-
-    return df
-
-if "logged_in" not in st.session_state or not st.session_state.logged_in:
-    st.warning("Please login first.")
-    st.switch_page("app.py")
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(page_title="Analytics", layout="wide")
 
-# ---------------- LOAD CSS ----------------
-css_path = Path(__file__).parent.parent / "assets" / "style.css"
-with open(css_path) as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
 # ---------------- SESSION CHECK ----------------
+if "logged_in" not in st.session_state or not st.session_state.logged_in:
+    st.warning("Please login first.")
+    st.switch_page("app.py")
+    st.stop()
+
 if "email" not in st.session_state or not st.session_state.email:
     st.warning("Please login first.")
     st.switch_page("app.py")
@@ -42,93 +22,131 @@ DB = "data/database.xlsx"
 
 st.title("📈 Analytics Dashboard")
 
-# ================================
+# ---------------- SAFE EXCEL LOADER ----------------
+def load_sheet_safe(sheet_name):
+    try:
+        df = pd.read_excel(DB, sheet_name=sheet_name)
+        df.columns = [str(c).strip().lower() for c in df.columns]
+        return df
+    except:
+        return pd.DataFrame()
+
+# =====================================================
 # 📚 STUDY TIME ANALYSIS
-# ================================
+# =====================================================
 st.subheader("📚 Study Time Analysis")
 
-try:
-    study = pd.read_excel(DB, sheet_name="StudyLog")
-    user_study = study[study["Email"] == email]
+study = load_sheet_safe("StudyLog")
 
-    if user_study.empty:
-        st.info("No study data available.")
-    else:
-        subject_summary = user_study.groupby("Subject")["Minutes"].sum() / 60
+if study.empty:
+    st.info("No study data available.")
+else:
+    if "email" in study.columns:
+        user_study = study[study["email"] == email]
 
-        fig, ax = plt.subplots()
-        ax.bar(subject_summary.index, subject_summary.values)
-        ax.set_ylabel("Hours")
-        ax.set_title("Study Time by Subject")
-        st.pyplot(fig)
+        if user_study.empty:
+            st.info("No study data available.")
+        else:
+            subject_summary = user_study.groupby("subject")["minutes"].sum() / 60
 
-except:
-    st.warning("Study data not found.")
+            fig, ax = plt.subplots()
+            ax.bar(subject_summary.index, subject_summary.values)
+            ax.set_ylabel("Hours")
+            ax.set_title("Study Time by Subject")
+            plt.xticks(rotation=45)
+            plt.tight_layout()
+            st.pyplot(fig)
 
 st.divider()
 
-# ================================
-# 🗓 ATTENDANCE ANALYSIS (DONUT)
-# ================================
+# =====================================================
+# 🗓 ATTENDANCE ANALYSIS (FIXED CORRECTLY)
+# =====================================================
 st.subheader("🗓 Attendance Analysis")
 
-try:
-    attendance = pd.read_excel(DB, sheet_name="Attendance")
-    user_att = attendance[attendance["Email"] == email]
+attendance = load_sheet_safe("Attendance")
 
-    total_days = user_att["Date"].nunique()
-    attended = len(user_att)
-    possible = total_days * 5 if total_days > 0 else 1
+if attendance.empty:
+    st.info("No attendance data found.")
+else:
 
-    percent = (attended / possible) * 100
+    required_cols = ["email", "date", "period"]
+    if not all(col in attendance.columns for col in required_cols):
+        st.error("Attendance sheet format incorrect.")
+        st.stop()
 
-    # ---- DONUT CHART ----
-    fig, ax = plt.subplots()
-    ax.pie(
-        [percent, 100 - percent],
-        labels=["Present", "Absent"],
-        autopct="%1.1f%%",
-        startangle=90,
-        wedgeprops={"width": 0.4}
-    )
-    ax.set_title("Overall Attendance")
-    st.pyplot(fig)
+    user_att = attendance[attendance["email"] == email]
 
-    st.metric("Overall Attendance %", f"{percent:.1f}%")
-
-    if percent < 75:
-        st.warning("⚠ Attendance below 75%")
+    if user_att.empty:
+        st.info("No attendance records yet.")
     else:
-        st.success("✅ Attendance is good")
 
-except:
-    st.warning("Attendance data not found.")
+        # ---- CONVERT DATE ----
+        user_att["date"] = pd.to_datetime(user_att["date"], errors="coerce").dt.date
+
+        # ---- CALCULATE ATTENDANCE CORRECTLY ----
+        total_days = user_att["date"].nunique()
+
+        PERIODS_PER_DAY = 5
+
+        total_possible = total_days * PERIODS_PER_DAY
+        present_periods = len(user_att)
+        absent_periods = total_possible - present_periods
+
+        percent = (present_periods / total_possible) * 100 if total_possible > 0 else 0
+
+        # ---- DONUT CHART (USING COUNTS, NOT %) ----
+        fig, ax = plt.subplots()
+        ax.pie(
+            [present_periods, absent_periods],
+            labels=["Present", "Absent"],
+            autopct="%1.1f%%",
+            startangle=90,
+            wedgeprops=dict(width=0.4)
+        )
+        ax.set_title("Overall Attendance")
+        plt.tight_layout()
+        st.pyplot(fig)
+
+        st.metric("Overall Attendance %", f"{percent:.1f}%")
+
+        if percent < 75:
+            st.warning("⚠ Attendance below 75%")
+        else:
+            st.success("✅ Attendance is good")
 
 st.divider()
 
-# ================================
+# =====================================================
+# 🔥 HABIT ANALYSIS
+# =====================================================
+# =====================================================
 # 🔥 HABIT ANALYSIS (FIXED)
-# ================================
+# =====================================================
 st.subheader("🔥 Habit Analysis")
 
-try:
-    habit_log = pd.read_excel(DB, sheet_name="HabitLog")
-    user_log = habit_log[habit_log["Email"] == email]
+habit_log = load_sheet_safe("HabitLog")
 
-    if user_log.empty:
-        st.info("Not enough days to show habit trend.")
-    else:
-        daily_count = user_log.groupby("Date").size()
+if habit_log.empty:
+    st.info("No habit data available.")
+else:
 
-        if len(daily_count) < 2:
-            st.info("Not enough days to show habit trend.")
+    if "email" in habit_log.columns:
+        user_log = habit_log[habit_log["email"] == email]
+
+        if user_log.empty:
+            st.info("No habits recorded yet.")
         else:
+            # IMPORTANT FIX
+            user_log["date"] = pd.to_datetime(user_log["date"], errors="coerce").dt.date
+
+            daily_count = user_log.groupby("date").size()
+
             fig, ax = plt.subplots()
             ax.plot(daily_count.index, daily_count.values, marker="o")
             ax.set_ylabel("Habits Completed")
             ax.set_xlabel("Date")
             ax.set_title("Daily Habit Completion Trend")
+            plt.xticks(rotation=45)
+            plt.tight_layout()
             st.pyplot(fig)
-
-except:
-    st.warning("Habit data not found.")

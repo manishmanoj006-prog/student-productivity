@@ -1,205 +1,147 @@
 import streamlit as st
 import pandas as pd
-from datetime import date, timedelta
-from pathlib import Path
+from datetime import date
 
-def load_sheet_safe(sheet_name, expected_cols):
-    try:
-        df = pd.read_excel(DB, sheet_name=sheet_name)
-    except:
-        return pd.DataFrame(columns=expected_cols)
+st.set_page_config(page_title="Study Time Tracker", layout="wide")
 
-    df.columns = [
-        c.strip().lower() if isinstance(c, str) else c
-        for c in df.columns
-    ]
-
-    if list(df.columns) != expected_cols:
-        return pd.DataFrame(columns=expected_cols)
-
-    return df
-
-# ================= PAGE PROTECTION =================
+# ---------------- SESSION ----------------
 if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.warning("Please login first.")
     st.switch_page("app.py")
+    st.stop()
 
 email = st.session_state.email
-
-# ================= PAGE CONFIG =================
-st.set_page_config(page_title="Study Time", layout="wide")
-
-# ================= LOAD CSS =================
-css_path = Path(__file__).parent.parent / "assets" / "style.css"
-with open(css_path) as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-# ================= DATABASE =================
 DB = "data/database.xlsx"
-today = date.today().strftime("%Y-%m-%d")
 
-# ================= TITLE =================
 st.title("📚 Study Time Tracker")
 
-# ================= LOAD DATA =================
-def load_sheet(name, cols):
+# ======================================================
+# 🧠 ADD SUBJECT SECTION
+# ======================================================
+st.subheader("➕ Add New Subject")
+
+new_subject = st.text_input("Enter Subject Name")
+
+if st.button("Add Subject"):
+
+    if new_subject.strip() == "":
+        st.warning("Enter a valid subject name")
+        st.stop()
+
     try:
-        return pd.read_excel(DB, sheet_name=name, dtype=str)
+        subjects = pd.read_excel(DB, sheet_name="Subjects")
     except:
-        return pd.DataFrame(columns=cols)
+        subjects = pd.DataFrame(columns=["email", "subject"])
 
-study_log = load_sheet("StudyLog", ["Email", "Date", "Subject", "Minutes"])
+    subjects.columns = [c.strip().lower() for c in subjects.columns]
 
-# ================= NORMALIZE DATA =================
-study_log["Email"] = study_log["Email"].astype(str).str.strip().str.lower()
-study_log["Date"] = study_log["Date"].astype(str).str.strip()
-study_log["Subject"] = study_log["Subject"].astype(str).str.strip()
-study_log["Minutes"] = pd.to_numeric(
-    study_log["Minutes"], errors="coerce"
-).fillna(0).astype(int)
+    # check duplicate
+    duplicate = (
+        (subjects["email"] == email) &
+        (subjects["subject"].str.lower() == new_subject.lower())
+    )
 
-# ================= SUBJECT LISTS =================
-all_subjects = sorted(
-    study_log[study_log["Email"] == email]["Subject"].unique().tolist()
-)
+    if duplicate.any():
+        st.info("Subject already added.")
+    else:
+        new_row = pd.DataFrame({
+            "email": [email],
+            "subject": [new_subject]
+        })
 
-subjects_logged_today = study_log[
-    (study_log["Email"] == email) &
-    (study_log["Date"] == today)
-]["Subject"].tolist()
+        subjects = pd.concat([subjects, new_row], ignore_index=True)
 
-# ================= TODAY SUMMARY =================
-st.subheader("📊 Today's Study Summary")
+        with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
+            subjects.to_excel(writer, sheet_name="Subjects", index=False)
 
-today_data = study_log[
-    (study_log["Email"] == email) &
-    (study_log["Date"] == today)
-]
-
-total_minutes_today = today_data["Minutes"].sum()
-st.metric("⏱ Total Study Time Today", f"{total_minutes_today} minutes")
+        st.success("Subject added successfully!")
 
 st.divider()
 
-# ================= ADD STUDY TIME =================
-st.subheader("➕ Add Study Time")
+# ======================================================
+# 📊 RECORD STUDY TIME
+# ======================================================
+st.subheader("⏱ Record Study Time")
 
-mode = st.radio(
-    "Choose how to add subject",
-    ["Select existing subject", "Add new subject"],
-    horizontal=True
-)
+# load subjects
+try:
+    subjects = pd.read_excel(DB, sheet_name="Subjects")
+    subjects.columns = [c.strip().lower() for c in subjects.columns]
+    user_subjects = subjects[subjects["email"] == email]["subject"].tolist()
+except:
+    user_subjects = []
+
+if len(user_subjects) == 0:
+    st.warning("Add at least one subject first.")
+    st.stop()
+
+# dropdown
+subject = st.selectbox("Select Subject", user_subjects)
 
 minutes = st.number_input(
-    "Study time (minutes)",
-    min_value=10,
+    "Study Time (minutes)",
+    min_value=1,
     max_value=600,
     step=5
 )
 
-# -------- SELECT EXISTING SUBJECT --------
-if mode == "Select existing subject":
-    if not all_subjects:
-        st.info("No subjects found. Add a new subject first.")
-    else:
-        selected_subject = st.selectbox("Select subject", all_subjects)
+# ---------------- SAVE STUDY TIME ----------------
+if st.button("Save Study Time"):
 
-        if st.button("Add Study Time"):
-            mask = (
-                (study_log["Email"] == email) &
-                (study_log["Date"] == today) &
-                (study_log["Subject"].str.lower() == selected_subject.lower())
-            )
+    today = date.today()
 
-            if mask.any():
-                # UPDATE existing minutes
-                study_log.loc[mask, "Minutes"] = (
-                    study_log.loc[mask, "Minutes"].astype(int) + minutes
-                )
-            else:
-                # CREATE new row (your merged logic)
-                new_row = pd.DataFrame([{
-                    "Email": email,
-                    "Date": today,
-                    "Subject": selected_subject,
-                    "Minutes": minutes
-                }])
+    try:
+        study_log = pd.read_excel(DB, sheet_name="StudyLog")
+    except:
+        study_log = pd.DataFrame(columns=["email", "subject", "minutes", "date"])
 
-                study_log = pd.concat([study_log, new_row], ignore_index=True)
+    study_log.columns = [c.strip().lower() for c in study_log.columns]
 
-            with pd.ExcelWriter(
-                DB,
-                engine="openpyxl",
-                mode="a",
-                if_sheet_exists="replace"
-            ) as writer:
-                study_log.to_excel(writer, sheet_name="StudyLog", index=False)
+    if not study_log.empty:
+        study_log["date"] = pd.to_datetime(study_log["date"]).dt.date
 
-            st.success(f"Added {minutes} minutes to {selected_subject}")
-            st.rerun()
-
-# -------- ADD NEW SUBJECT --------
-else:
-    new_subject = st.text_input("Enter new subject name")
-    clean_subject = new_subject.strip()
-
-    if st.button("Add New Subject & Log Time"):
-        if not clean_subject:
-            st.warning("Subject name cannot be empty")
-
-        elif clean_subject.lower() in [s.lower() for s in subjects_logged_today]:
-            st.warning("You have already logged this subject today")
-
-        else:
-            new_row = pd.DataFrame([{
-                "Email": email,
-                "Date": today,
-                "Subject": clean_subject,
-                "Minutes": minutes
-            }])
-
-            study_log = pd.concat([study_log, new_row], ignore_index=True)
-
-            with pd.ExcelWriter(
-                DB,
-                engine="openpyxl",
-                mode="a",
-                if_sheet_exists="replace"
-            ) as writer:
-                study_log.to_excel(writer, sheet_name="StudyLog", index=False)
-
-            st.success(f"Added {minutes} minutes for {clean_subject}")
-            st.rerun()
-
-st.divider()
-
-# ================= TODAY SUBJECT VIEW =================
-st.subheader("📘 Subject-wise Study (Today)")
-
-if today_data.empty:
-    st.info("No study time logged today.")
-else:
-    st.dataframe(
-        today_data[["Subject", "Minutes"]],
-        use_container_width=True
+    # check if subject already recorded today
+    existing = (
+        (study_log["email"] == email) &
+        (study_log["subject"] == subject) &
+        (study_log["date"] == today)
     )
 
-# ================= WEEKLY SUMMARY =================
-st.divider()
-st.subheader("📅 Last 7 Days Study Summary")
+    if existing.any():
+        study_log.loc[existing, "minutes"] = minutes
+        st.info("Today's study time updated.")
+    else:
+        new_row = pd.DataFrame({
+            "email": [email],
+            "subject": [subject],
+            "minutes": [minutes],
+            "date": [today]
+        })
+        study_log = pd.concat([study_log, new_row], ignore_index=True)
+        st.success("Study time saved!")
 
-weekly_data = []
-for i in range(6, -1, -1):
-    d = (date.today() - timedelta(days=i)).strftime("%Y-%m-%d")
-    mins = study_log[
-        (study_log["Email"] == email) &
-        (study_log["Date"] == d)
-    ]["Minutes"].sum()
+    with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
+        study_log.to_excel(writer, sheet_name="StudyLog", index=False)
 
-    weekly_data.append({
-        "Date": d,
-        "Total Minutes": mins
-    })
+# ======================================================
+# 📅 TODAY LOG
+# ======================================================
+st.subheader("Today's Study Record")
 
-weekly_df = pd.DataFrame(weekly_data)
-st.dataframe(weekly_df, use_container_width=True)
+try:
+    study_log = pd.read_excel(DB, sheet_name="StudyLog")
+    study_log.columns = [c.strip().lower() for c in study_log.columns]
+    study_log["date"] = pd.to_datetime(study_log["date"]).dt.date
+
+    today_log = study_log[
+        (study_log["email"] == email) &
+        (study_log["date"] == date.today())
+    ]
+
+    if today_log.empty:
+        st.info("No study recorded today.")
+    else:
+        st.dataframe(today_log[["subject", "minutes"]])
+
+except:
+    st.info("No study data available.")

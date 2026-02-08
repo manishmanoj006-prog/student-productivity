@@ -1,6 +1,32 @@
 import streamlit as st
 import sqlite3
 from pathlib import Path
+import pandas as pd
+from pathlib import Path
+
+# ---------------- DATABASE INITIALIZER ----------------
+DATA_DIR = Path("data")
+DATA_DIR.mkdir(exist_ok=True)
+
+DB = DATA_DIR / "database.xlsx"
+
+if not DB.exists():
+    with pd.ExcelWriter(DB, engine="openpyxl") as writer:
+
+        # Attendance sheet
+        pd.DataFrame(columns=["email", "date", "period"]).to_excel(
+            writer, sheet_name="Attendance", index=False
+        )
+
+        # Study log sheet
+        pd.DataFrame(columns=["email", "subject", "minutes", "date"]).to_excel(
+            writer, sheet_name="StudyLog", index=False
+        )
+
+        # Habit log sheet
+        pd.DataFrame(columns=["email", "habit", "date"]).to_excel(
+            writer, sheet_name="HabitLog", index=False
+        )
 
 # ================== PAGE CONFIG (ONLY PLACE) ==================
 st.set_page_config(

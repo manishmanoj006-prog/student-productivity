@@ -1,8 +1,4 @@
 streamlit
 pandas
-matplotlib
-requests
-python-dotenv
-google-auth-oauthlib
 openpyxl
-
+matplotlib

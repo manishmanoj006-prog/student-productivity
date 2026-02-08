@@ -76,12 +76,12 @@ attendance_log["email"] = attendance_log["email"].astype(str).str.strip().str.lo
 from datetime import time
 
 periods = {
-    "Period 1 (08:00 – 08:55)": (time(8, 0), time(8, 55)),
-    "Period 2 (08:55 – 09:50)": (time(8, 55), time(9, 50)),
-    "Break (09:50 – 10:05)": (time(9, 50), time(10, 5)),
-    "Period 3 (10:05 – 11:00)": (time(10, 5), time(11, 0)),
-    "Period 4 (11:00 – 11:55)": (time(11, 0), time(11, 55)),
-    "Period 5 (11:55 – 13:00)": (time(11, 55), time(13, 0)),
+    "Period 1 (15:00 – 15:55)": (time(15, 0), time(15, 55)),
+    "Period 2 (15:55 – 16:50)": (time(15, 55), time(16, 50)),
+    "Break (16:50 – 17:05)": (time(16, 50), time(17, 5)),
+    "Period 3 (17:05 – 18:00)": (time(17, 5), time(18, 0)),
+    "Period 4 (18:00 – 18:55)": (time(18, 0), time(18, 55)),
+    "Period 5 (18:55 – 20:00)": (time(18, 55), time(20, 0)),
 }
 
 
