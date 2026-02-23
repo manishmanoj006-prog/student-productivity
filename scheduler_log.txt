@@ -287,3 +287,35 @@ Scheduler ran at 2026-01-25 18:00:03.233246
 2026-02-16 07:45:04.375277 - ERROR processing row 1: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
 2026-02-16 07:45:04.376419 - ERROR processing row 2: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
 2026-02-16 07:45:04.548696 - Scheduler finished
+2026-02-17 20:29:04.887171 - Scheduler started
+2026-02-17 20:29:07.329342 - ERROR processing row 0: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-17 20:29:07.330047 - ERROR processing row 1: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-17 20:29:07.465250 - Scheduler finished
+2026-02-17 20:39:13.416308 - Scheduler started
+2026-02-17 20:39:15.565557 - ERROR processing row 0: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-17 20:39:15.566297 - ERROR processing row 1: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-17 20:39:15.687482 - Scheduler finished
+2026-02-17 21:40:07.856339 - Scheduler started
+2026-02-17 21:40:14.322985 - ERROR processing row 0: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-17 21:40:14.324060 - ERROR processing row 1: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-17 21:40:14.440329 - Scheduler finished
+2026-02-17 22:39:11.054446 - Scheduler started
+2026-02-17 22:39:13.319874 - ERROR processing row 0: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-17 22:39:13.320873 - ERROR processing row 1: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-17 22:39:13.474930 - Scheduler finished
+2026-02-18 21:32:30.214039 - Scheduler started
+2026-02-18 21:32:33.193518 - ERROR processing row 0: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-18 21:32:33.209106 - ERROR processing row 1: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-18 21:32:33.368922 - Scheduler finished
+2026-02-18 21:39:12.945158 - Scheduler started
+2026-02-18 21:39:15.095262 - ERROR processing row 0: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-18 21:39:15.095959 - ERROR processing row 1: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-18 21:39:15.230204 - Scheduler finished
+2026-02-18 22:39:22.846762 - Scheduler started
+2026-02-18 22:39:28.985259 - ERROR processing row 0: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-18 22:39:28.986656 - ERROR processing row 1: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-18 22:39:29.095710 - Scheduler finished
+2026-02-21 18:39:13.439367 - Scheduler started
+2026-02-21 18:39:15.820320 - ERROR processing row 0: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-21 18:39:15.821242 - ERROR processing row 1: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-02-21 18:39:15.951851 - Scheduler finished
