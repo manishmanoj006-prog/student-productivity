@@ -14,8 +14,7 @@ st.set_page_config(page_title="Tasks", layout="wide")
 # ---------------- LOAD CSS ----------------
 css_path = Path(__file__).parent.parent / "assets" / "style.css"
 if css_path.exists():
-    with open(css_path) as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    st.markdown(f"<style>{css_path.read_text()}</style>", unsafe_allow_html=True)
 
 # ---------------- SESSION CHECK ----------------
 if "email" not in st.session_state or not st.session_state.email:
@@ -31,18 +30,18 @@ TODAY = date.today().strftime("%Y-%m-%d")
 SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
 APP_PASSWORD = st.secrets["APP_PASSWORD"]
 
-# ---------------- EMAIL FUNCTION ----------------
+# =====================================================
+# EMAIL FUNCTION
+# =====================================================
 def send_task_email(receiver_email, task, priority):
 
-    if priority == "Low":
-        return
-
+    # -------- SUBJECT & MESSAGE BASED ON PRIORITY --------
     if priority == "High":
         subject = "🚨 HIGH PRIORITY TASK ALERT"
         body = f"""
 Hello,
 
-You still have a HIGH PRIORITY pending task.
+You have a HIGH PRIORITY task pending.
 
 Task: {task}
 
@@ -50,8 +49,9 @@ Please complete it immediately.
 
 - Student Productivity Tracker
 """
-    else:
-        subject = "Task Reminder"
+
+    elif priority == "Medium":
+        subject = "⏰ Task Reminder"
         body = f"""
 Hello,
 
@@ -60,9 +60,27 @@ Reminder to complete your task:
 Task: {task}
 Priority: Medium
 
+Try to finish it soon.
+
 - Student Productivity Tracker
 """
 
+    else:  # LOW PRIORITY
+        subject = "📝 Friendly Task Reminder"
+        body = f"""
+Hello,
+
+This is a gentle reminder for your task.
+
+Task: {task}
+Priority: Low
+
+You can complete it whenever you are free.
+
+- Student Productivity Tracker
+"""
+
+    # -------- SEND MAIL --------
     try:
         msg = MIMEMultipart()
         msg["From"] = SENDER_EMAIL
@@ -71,19 +89,20 @@ Priority: Medium
         msg.attach(MIMEText(body, "plain"))
 
         server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.ehlo()
         server.starttls()
-        server.ehlo()
         server.login(SENDER_EMAIL, APP_PASSWORD)
         server.send_message(msg)
         server.quit()
 
-        print("Reminder mail sent")
+        print("EMAIL SENT SUCCESSFULLY")
 
     except Exception as e:
         print("MAIL ERROR:", e)
 
-# ---------------- LOAD DATA ----------------
+
+# =====================================================
+# LOAD DATA
+# =====================================================
 def load_tasks():
     try:
         return pd.read_excel(DB, sheet_name="Tasks")
@@ -101,7 +120,9 @@ def load_users():
 tasks = load_tasks()
 users = load_users()
 
-# ---------------- REMINDER INTERVALS (HOURS) ----------------
+# =====================================================
+# REMINDER SETTINGS (HOURS)
+# =====================================================
 REMINDER_INTERVAL = {
     "High": 3,
     "Medium": 6,
@@ -110,7 +131,7 @@ REMINDER_INTERVAL = {
 
 def should_send(priority, last_reminded):
 
-    if last_reminded == "" or str(last_reminded) == "nan":
+    if pd.isna(last_reminded):
         return True
 
     try:
@@ -119,10 +140,12 @@ def should_send(priority, last_reminded):
         return True
 
     hours_passed = (datetime.now() - last_time).total_seconds() / 3600
-
     return hours_passed >= REMINDER_INTERVAL.get(priority, 6)
 
-# ---------------- REMINDER ENGINE ----------------
+
+# =====================================================
+# REMINDER ENGINE
+# =====================================================
 def check_pending_tasks():
 
     tasks_df = load_tasks()
@@ -133,12 +156,10 @@ def check_pending_tasks():
         if row["Status"] != "Pending":
             continue
 
-        priority = row["Priority"]
-        last_reminded = row.get("Last_Reminded", "")
+        if should_send(row["Priority"], row["Last_Reminded"]):
 
-        if should_send(priority, last_reminded):
-            print(f"Sending reminder for: {row['Task']}")
-            send_task_email(row["Email"], row["Task"], priority)
+            print("Sending scheduled reminder:", row["Task"])
+            send_task_email(row["Email"], row["Task"], row["Priority"])
 
             tasks_df.loc[i, "Last_Reminded"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             updated = True
@@ -148,47 +169,61 @@ def check_pending_tasks():
             users.to_excel(writer, sheet_name="Users", index=False)
             tasks_df.to_excel(writer, sheet_name="Tasks", index=False)
 
-# ---------------- BACKGROUND THREAD ----------------
+
+# =====================================================
+# BACKGROUND THREAD
+# =====================================================
 def background_reminder():
     while True:
         check_pending_tasks()
         time.sleep(300)  # check every 5 minutes
 
-# start ONLY ONCE
 if "scheduler_running" not in st.session_state:
     st.session_state.scheduler_running = True
     threading.Thread(target=background_reminder, daemon=True).start()
 
-# ---------------- UI ----------------
+
+# =====================================================
+# UI
+# =====================================================
 st.title("📋 Mandatory Tasks")
 
 task_name = st.text_input("Task Name")
 priority = st.selectbox("Priority", ["High", "Medium", "Low"])
 
+# ⭐⭐⭐ IMPORTANT FIX — SEND MAIL ON ADD ⭐⭐⭐
 if st.button("Add Task"):
 
     if not task_name:
         st.warning("Task name cannot be empty")
     else:
+        now_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
         new_task = pd.DataFrame([{
             "Email": email,
             "Task": task_name,
             "Priority": priority,
             "Status": "Pending",
             "Created_Date": TODAY,
-            "Last_Reminded": ""
+            "Last_Reminded": now_time
         }])
 
         tasks = pd.concat([tasks, new_task], ignore_index=True)
+
+        # 🔴 SEND IMMEDIATE EMAIL
+        send_task_email(email, task_name, priority)
 
         with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
             users.to_excel(writer, sheet_name="Users", index=False)
             tasks.to_excel(writer, sheet_name="Tasks", index=False)
 
-        st.success("Task added successfully ✅")
+        st.success("Task added & email notification sent ✅")
         st.rerun()
 
-# ---------------- DISPLAY TASKS ----------------
+
+# =====================================================
+# DISPLAY TASKS
+# =====================================================
 st.subheader("🗂 Your Tasks")
 
 user_tasks = tasks[tasks["Email"] == email]
@@ -213,7 +248,10 @@ with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") 
     users.to_excel(writer, sheet_name="Users", index=False)
     tasks.to_excel(writer, sheet_name="Tasks", index=False)
 
-# ---------------- SUMMARY ----------------
+
+# =====================================================
+# SUMMARY
+# =====================================================
 st.divider()
 
 total = len(user_tasks)

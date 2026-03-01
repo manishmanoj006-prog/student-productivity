@@ -145,3 +145,4 @@ try:
 
 except:
     st.info("No study data available.")
+ 

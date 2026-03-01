@@ -2,24 +2,8 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, date, time
 from pathlib import Path
-
+import math
 from utils.excel_utils import safe_write
-
-def load_sheet_safe(sheet_name, expected_cols):
-    try:
-        df = pd.read_excel(DB, sheet_name=sheet_name)
-    except:
-        return pd.DataFrame(columns=expected_cols)
-
-    df.columns = [
-        c.strip().lower() if isinstance(c, str) else c
-        for c in df.columns
-    ]
-
-    if list(df.columns) != expected_cols:
-        return pd.DataFrame(columns=expected_cols)
-
-    return df
 
 # ================= AUTH CHECK =================
 if "logged_in" not in st.session_state or not st.session_state.logged_in:
@@ -42,28 +26,10 @@ DB = "data/database.xlsx"
 TODAY = date.today().strftime("%Y-%m-%d")
 NOW = datetime.now().time()
 
-# ================= LOAD USERS =================
-try:
-    users = pd.read_excel(DB, sheet_name="Users", dtype=str)
-except:
-    users = pd.DataFrame(columns=["email", "attendance"])
+PERIODS_PER_DAY = 5
+REQUIRED_PERCENT = 0.75
 
-# normalize columns
-users.columns = users.columns.str.strip().str.lower()
-
-if "email" not in users.columns:
-    users["email"] = ""
-
-if "attendance" not in users.columns:
-    users["attendance"] = "0"
-
-users["email"] = users["email"].astype(str).str.strip().str.lower()
-users["attendance"] = pd.to_numeric(users["attendance"], errors="coerce").fillna(0).astype(int)
-
-user_row = users[users["email"] == email]
-attendance_score = int(user_row.iloc[0]["attendance"]) if not user_row.empty else 0
-
-# ================= LOAD ATTENDANCE LOG =================
+# ================= LOAD ATTENDANCE =================
 try:
     attendance_log = pd.read_excel(DB, sheet_name="Attendance", dtype=str)
 except:
@@ -72,18 +38,15 @@ except:
 attendance_log.columns = attendance_log.columns.str.strip().str.lower()
 attendance_log["email"] = attendance_log["email"].astype(str).str.strip().str.lower()
 
-# ================= PERIODS =================
-from datetime import time
-
+# ================= PERIOD TIMINGS =================
 periods = {
-    "Period 1 (15:00 – 15:55)": (time(15, 0), time(15, 55)),
-    "Period 2 (15:55 – 16:50)": (time(15, 55), time(16, 50)),
-    "Break (16:50 – 17:05)": (time(16, 50), time(17, 5)),
-    "Period 3 (17:05 – 18:00)": (time(17, 5), time(18, 0)),
-    "Period 4 (18:00 – 18:55)": (time(18, 0), time(18, 55)),
-    "Period 5 (18:55 – 20:00)": (time(18, 55), time(20, 0)),
+    "Period 1 (10:00 – 10:55)": (time(10, 0), time(10, 55)),
+    "Period 2 (10:55 – 11:50)": (time(10, 55), time(11, 50)),
+    "Period 3 (12:05 – 13:00)": (time(12, 5), time(13, 0)),
+    "Period 4 (13:00 – 13:55)": (time(13, 0), time(13, 55)),
+    "Period 5 (13:55 – 15:00)": (time(13, 55), time(15, 0)),
 }
-
+# (Break removed intentionally)
 
 # ================= TODAY STATUS =================
 today_att = attendance_log[
@@ -92,7 +55,7 @@ today_att = attendance_log[
 ]
 
 st.title("🗓 Attendance Tracker")
-st.metric("Today's Attendance", f"{len(today_att)} / 5")
+st.metric("Today's Attendance", f"{len(today_att)} / {PERIODS_PER_DAY}")
 
 # ================= MARK ATTENDANCE =================
 valid_periods = [
@@ -111,21 +74,9 @@ if valid_periods:
         }])
 
         attendance_log = pd.concat([attendance_log, new_row], ignore_index=True)
+        safe_write(DB, {"Attendance": attendance_log})
 
-        if user_row.empty:
-            users = pd.concat([users, pd.DataFrame([{
-                "email": email,
-                "attendance": 1
-            }])], ignore_index=True)
-        else:
-            users.loc[users["email"] == email, "attendance"] = attendance_score + 1
-
-        safe_write(DB, {
-            "Users": users,
-            "Attendance": attendance_log
-        })
-
-        st.success("Attendance marked")
+        st.success("Attendance marked successfully ✅")
         st.rerun()
 else:
     st.info("No active periods right now.")
@@ -134,9 +85,73 @@ else:
 st.divider()
 
 user_all = attendance_log[attendance_log["email"] == email]
-total_days = user_all["date"].nunique()
-total_periods = user_all.shape[0]
-possible = max(total_days * 5, 1)
 
-percent = (total_periods / possible) * 100
-st.metric("Overall Attendance %", f"{percent:.1f}%")
+# A = attended classes
+A = len(user_all)
+
+# T = classes conducted till today
+unique_days = user_all["date"].nunique()
+
+if unique_days == 0:
+    T = PERIODS_PER_DAY
+else:
+    T = unique_days * PERIODS_PER_DAY
+
+attendance_percent = (A / T) * 100
+
+st.metric("Overall Attendance %", f"{attendance_percent:.2f}%")
+st.caption(f"Attended Classes: {A} / {T}")
+
+# =====================================================
+# 🎯 ATTENDANCE SHORTAGE PREDICTOR
+# =====================================================
+st.subheader("🎯 Attendance Shortage Predictor (75% Rule)")
+
+if attendance_percent >= 75:
+    st.success("✅ You are safe! Your attendance is above 75%.")
+else:
+
+    # x = classes to attend continuously
+    classes_needed = math.ceil((REQUIRED_PERCENT*T - A) / (1 - REQUIRED_PERCENT))
+
+    if classes_needed < 0:
+        classes_needed = 0
+
+    st.error(f"⚠ Your attendance is {attendance_percent:.1f}%")
+
+    st.warning(
+        f"You must attend the next **{classes_needed} classes continuously** "
+        f"to reach the safe 75% attendance level."
+    )
+
+    new_percent = ((A + classes_needed) / (T + classes_needed)) * 100
+    st.info(f"After attending them, your attendance will become approximately **{new_percent:.1f}%**.")
+
+# =====================================================
+# 🎒 SAFE BUNK PLANNER
+# =====================================================
+st.divider()
+st.subheader("🎒 Safe Bunk Planner (75% Rule)")
+
+safe_bunks = math.floor((A / REQUIRED_PERCENT) - T)
+
+if safe_bunks > 0:
+    st.success(
+        f"You can safely miss **{safe_bunks} classes** and still stay above 75% attendance."
+    )
+
+    future_percent = (A / (T + safe_bunks)) * 100
+    st.info(
+        f"If you skip {safe_bunks} classes, your attendance will become approximately **{future_percent:.1f}%**."
+    )
+
+elif safe_bunks == 0:
+    st.warning(
+        "You cannot miss any classes now. Missing even one class will drop you below 75% attendance."
+    )
+
+else:
+    shortage = abs(safe_bunks)
+    st.error(
+        f"⚠ You are below safe attendance. You must attend at least **{shortage} more classes** to become safe."
+    )

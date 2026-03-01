@@ -3,8 +3,6 @@ import sqlite3
 from pathlib import Path
 import pandas as pd
 from pathlib import Path
-from utils.productivity import calculate_productivity
-from utils.suggestions import get_suggestions
 
 # ---------------- DATABASE INITIALIZER ----------------
 DATA_DIR = Path("data")
@@ -129,20 +127,4 @@ with tab_register:
             except sqlite3.IntegrityError:
                 st.warning("Email already registered")
 #============
-score = calculate_productivity(st.session_state.email)
 
-st.subheader("📊 Today's Productivity Score")
-
-if score >= 80:
-    st.success(f"🔥 Excellent! Your Productivity Score: {score}/100")
-elif score >= 50:
-    st.warning(f"🙂 Average Performance: {score}/100")
-else:
-    st.error(f"⚠ Low Productivity: {score}/100")
-#=========================
-st.subheader("🧠 Smart Study Suggestions")
-
-tips = get_suggestions(st.session_state.email)
-
-for tip in tips:
-    st.info(tip)
