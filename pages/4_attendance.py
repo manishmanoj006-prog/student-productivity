@@ -39,12 +39,14 @@ attendance_log.columns = attendance_log.columns.str.strip().str.lower()
 attendance_log["email"] = attendance_log["email"].astype(str).str.strip().str.lower()
 
 # ================= PERIOD TIMINGS =================
+from datetime import time
+
 periods = {
-    "Period 1 (10:00 – 10:55)": (time(10, 0), time(10, 55)),
-    "Period 2 (10:55 – 11:50)": (time(10, 55), time(11, 50)),
-    "Period 3 (12:05 – 13:00)": (time(12, 5), time(13, 0)),
-    "Period 4 (13:00 – 13:55)": (time(13, 0), time(13, 55)),
-    "Period 5 (13:55 – 15:00)": (time(13, 55), time(15, 0)),
+    "Period 1 (13:00 – 14:00)": (time(13, 0), time(14, 0)),
+    "Period 2 (14:00 – 15:00)": (time(14, 0), time(15, 0)),
+    "Period 3 (15:00 – 16:00)": (time(15, 0), time(16, 0)),
+    "Period 4 (16:00 – 17:00)": (time(16, 0), time(17, 0)),
+    "Period 5 (17:00 – 18:00)": (time(17, 0), time(18, 0)),
 }
 # (Break removed intentionally)
 
