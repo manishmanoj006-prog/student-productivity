@@ -15,6 +15,17 @@ email = st.session_state.email.strip().lower()
 DB = Path("data/database.xlsx")
 today = date.today().strftime("%Y-%m-%d")
 
+# ================= DAILY SESSION RESET =================
+if "last_visit_date" not in st.session_state:
+    st.session_state.last_visit_date = today
+
+if st.session_state.last_visit_date != today:
+    for key in list(st.session_state.keys()):
+        if "_" in key:
+            del st.session_state[key]
+
+    st.session_state.last_visit_date = today
+
 # ================= LOAD CSS =================
 css_path = Path(__file__).parent.parent / "assets" / "style.css"
 if css_path.exists():
@@ -36,7 +47,7 @@ def read_sheet(sheet, cols):
 # ==================================================
 # LOAD DATA
 # ==================================================
-habits = read_sheet("Habits", ["email","habit"])
+habits = read_sheet("Habits", ["email", "habit"])
 habit_log = read_sheet("HabitLog", ["email", "date", "habit"])
 
 # Normalize
@@ -50,7 +61,7 @@ habit_log["date"] = pd.to_datetime(
     habit_log["date"], errors="coerce"
 ).dt.strftime("%Y-%m-%d")
 
-# ================= SHOW ONLY USER HABITS =================
+# ================= USER HABITS ONLY =================
 habits = habits[habits["email"] == email]
 
 # ==================================================
@@ -70,25 +81,10 @@ done_count = len(done_today)
 progress = int((done_count / total_habits) * 100) if total_habits else 0
 
 st.progress(progress / 100)
-
 st.write(f"**{done_count} of {total_habits} habits completed ({progress}%)**")
 
 st.divider()
 
-# ======== 
-today = date.today().strftime("%Y-%m-%d")
-
-# ================= DAILY SESSION RESET =================
-if "last_visit_date" not in st.session_state:
-    st.session_state.last_visit_date = today
-
-if st.session_state.last_visit_date != today:
-    # clear all checkbox states
-    for key in list(st.session_state.keys()):
-        if "_" in key:
-            del st.session_state[key]
-
-    st.session_state.last_visit_date = today
 # ==================================================
 # ADD NEW HABIT
 # ==================================================
@@ -108,7 +104,7 @@ if st.button("Add Habit"):
 
     else:
 
-        full_habits = read_sheet("Habits", ["email","habit"])
+        full_habits = read_sheet("Habits", ["email", "habit"])
 
         new_row = pd.DataFrame([{
             "email": email,
@@ -143,7 +139,7 @@ for habit in habits["habit"]:
         (habit_log["date"] == today)
     ).any()
 
-    col1, col2 = st.columns([4,1])
+    col1, col2 = st.columns([4, 1])
 
     with col1:
 
@@ -163,7 +159,7 @@ for habit in habits["habit"]:
                     ignore_index=True
                 )
 
-                full_habits = read_sheet("Habits", ["email","habit"])
+                full_habits = read_sheet("Habits", ["email", "habit"])
 
                 with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as w:
                     full_habits.to_excel(w, sheet_name="Habits", index=False)
@@ -188,7 +184,6 @@ for habit in habits["habit"]:
             if d == current:
                 streak += 1
                 current -= timedelta(days=1)
-
             else:
                 break
 
@@ -203,7 +198,7 @@ st.subheader("📅 Last 7 Days Summary")
 
 last_7_days = [
     (date.today() - timedelta(days=i)).strftime("%Y-%m-%d")
-    for i in range(6,-1,-1)
+    for i in range(6, -1, -1)
 ]
 
 weekly_data = []
