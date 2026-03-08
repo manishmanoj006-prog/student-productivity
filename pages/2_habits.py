@@ -75,6 +75,20 @@ st.write(f"**{done_count} of {total_habits} habits completed ({progress}%)**")
 
 st.divider()
 
+# ======== 
+today = date.today().strftime("%Y-%m-%d")
+
+# ================= DAILY SESSION RESET =================
+if "last_visit_date" not in st.session_state:
+    st.session_state.last_visit_date = today
+
+if st.session_state.last_visit_date != today:
+    # clear all checkbox states
+    for key in list(st.session_state.keys()):
+        if "_" in key:
+            del st.session_state[key]
+
+    st.session_state.last_visit_date = today
 # ==================================================
 # ADD NEW HABIT
 # ==================================================
