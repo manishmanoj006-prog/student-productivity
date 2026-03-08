@@ -36,16 +36,22 @@ def read_sheet(sheet, cols):
 # ==================================================
 # LOAD DATA
 # ==================================================
-habits = read_sheet("Habits", ["habit"])
+habits = read_sheet("Habits", ["email","habit"])
 habit_log = read_sheet("HabitLog", ["email", "date", "habit"])
 
 # Normalize
+habits["email"] = habits["email"].astype(str).str.strip().str.lower()
 habits["habit"] = habits["habit"].astype(str).str.strip()
+
 habit_log["email"] = habit_log["email"].astype(str).str.strip().str.lower()
 habit_log["habit"] = habit_log["habit"].astype(str).str.strip()
+
 habit_log["date"] = pd.to_datetime(
     habit_log["date"], errors="coerce"
 ).dt.strftime("%Y-%m-%d")
+
+# ================= SHOW ONLY USER HABITS =================
+habits = habits[habits["email"] == email]
 
 # ==================================================
 # TODAY PROGRESS
@@ -60,9 +66,11 @@ done_today = habit_log[
 ]
 
 done_count = len(done_today)
+
 progress = int((done_count / total_habits) * 100) if total_habits else 0
 
 st.progress(progress / 100)
+
 st.write(f"**{done_count} of {total_habits} habits completed ({progress}%)**")
 
 st.divider()
@@ -75,19 +83,28 @@ st.subheader("➕ Add New Habit")
 new_habit = st.text_input("Habit name (e.g. Exercise)")
 
 if st.button("Add Habit"):
+
     clean = new_habit.strip()
 
     if not clean:
         st.warning("Habit name cannot be empty")
+
     elif clean.lower() in habits["habit"].str.lower().tolist():
         st.info("Habit already exists")
+
     else:
-        habits = pd.concat(
-            [habits, pd.DataFrame([{"habit": clean}])],
-            ignore_index=True
-        )
+
+        full_habits = read_sheet("Habits", ["email","habit"])
+
+        new_row = pd.DataFrame([{
+            "email": email,
+            "habit": clean
+        }])
+
+        full_habits = pd.concat([full_habits, new_row], ignore_index=True)
+
         with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as w:
-            habits.to_excel(w, sheet_name="Habits", index=False)
+            full_habits.to_excel(w, sheet_name="Habits", index=False)
             habit_log.to_excel(w, sheet_name="HabitLog", index=False)
 
         st.success("Habit added ✅")
@@ -112,13 +129,17 @@ for habit in habits["habit"]:
         (habit_log["date"] == today)
     ).any()
 
-    col1, col2 = st.columns([4, 1])
+    col1, col2 = st.columns([4,1])
 
     with col1:
+
         if already_done:
             st.checkbox(habit, value=True, disabled=True)
+
         else:
+
             if st.checkbox(habit, key=f"{habit}_{today}"):
+
                 habit_log = pd.concat(
                     [habit_log, pd.DataFrame([{
                         "email": email,
@@ -128,15 +149,18 @@ for habit in habits["habit"]:
                     ignore_index=True
                 )
 
+                full_habits = read_sheet("Habits", ["email","habit"])
+
                 with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as w:
-                    habits.to_excel(w, sheet_name="Habits", index=False)
+                    full_habits.to_excel(w, sheet_name="Habits", index=False)
                     habit_log.to_excel(w, sheet_name="HabitLog", index=False)
 
                 st.success(f"Marked '{habit}' as done ✅")
                 st.rerun()
 
+    # ================= STREAK =================
     with col2:
-        # -------- STREAK --------
+
         dates = habit_log[
             (habit_log["email"] == email) &
             (habit_log["habit"] == habit)
@@ -146,9 +170,11 @@ for habit in habits["habit"]:
         current = date.today()
 
         for d in sorted(pd.to_datetime(dates, errors="coerce").dt.date, reverse=True):
+
             if d == current:
                 streak += 1
                 current -= timedelta(days=1)
+
             else:
                 break
 
@@ -158,23 +184,28 @@ for habit in habits["habit"]:
 # WEEKLY SUMMARY
 # ==================================================
 st.divider()
+
 st.subheader("📅 Last 7 Days Summary")
 
 last_7_days = [
     (date.today() - timedelta(days=i)).strftime("%Y-%m-%d")
-    for i in range(6, -1, -1)
+    for i in range(6,-1,-1)
 ]
 
 weekly_data = []
 
 for habit in habits["habit"]:
+
     row = {"Habit": habit}
+
     for d in last_7_days:
+
         row[d] = "✅" if (
             (habit_log["email"] == email) &
             (habit_log["habit"] == habit) &
             (habit_log["date"] == d)
         ).any() else "❌"
+
     weekly_data.append(row)
 
 st.dataframe(pd.DataFrame(weekly_data), use_container_width=True)
