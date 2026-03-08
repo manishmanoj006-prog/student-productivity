@@ -627,3 +627,11 @@ Scheduler ran at 2026-01-25 18:00:03.233246
 2026-03-08 18:39:11.984725 - ERROR processing row 0: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
 2026-03-08 18:39:11.985616 - ERROR processing row 3: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
 2026-03-08 18:39:12.063834 - Scheduler finished
+2026-03-08 19:39:12.277733 - Scheduler started
+2026-03-08 19:39:14.335598 - ERROR processing row 0: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-03-08 19:39:14.336387 - ERROR processing row 3: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-03-08 19:39:14.457699 - Scheduler finished
+2026-03-08 20:39:10.417756 - Scheduler started
+2026-03-08 20:39:12.788010 - ERROR processing row 0: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-03-08 20:39:12.790469 - ERROR processing row 3: 'st.secrets has no key "EMAIL_USER". Did you forget to add it to secrets.toml, mount it to secret directory, or the app settings on Streamlit Cloud? More info: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management'
+2026-03-08 20:39:12.877487 - Scheduler finished

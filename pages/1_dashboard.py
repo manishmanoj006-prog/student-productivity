@@ -10,7 +10,7 @@ st.set_page_config(page_title="Dashboard", layout="wide")
 
 DB = Path("data/database.xlsx")
 
-# ================= 🔐 AUTH PROTECTION =================
+# ================= AUTH =================
 if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.warning("Please login first")
     st.switch_page("app.py")
@@ -24,7 +24,7 @@ css_path = Path(__file__).parent.parent / "assets" / "style.css"
 if css_path.exists():
     st.markdown(f"<style>{css_path.read_text()}</style>", unsafe_allow_html=True)
 
-# ================= SAFE READ FUNCTION =================
+# ================= SAFE READ =================
 def read_sheet(sheet):
     try:
         df = pd.read_excel(DB, sheet_name=sheet)
@@ -42,14 +42,26 @@ tasks = read_sheet("Tasks")
 settings = read_sheet("Settings")
 
 # =================================================
-# HABITS (TODAY)
+# HABITS (FIXED)
 # =================================================
-total_habits = len(habits)
+total_habits = 0
 completed_habits = 0
 
+if not habits.empty and "email" in habits.columns:
+
+    habits["email"] = habits["email"].astype(str).str.strip().str.lower()
+
+    user_habits = habits[habits["email"] == email]
+
+    total_habits = len(user_habits)
+
 if not habit_log.empty and {"email", "date"}.issubset(habit_log.columns):
-    habit_log["email"] = habit_log["email"].astype(str).str.lower()
-    habit_log["date"] = pd.to_datetime(habit_log["date"], errors="coerce").dt.date
+
+    habit_log["email"] = habit_log["email"].astype(str).str.strip().str.lower()
+
+    habit_log["date"] = pd.to_datetime(
+        habit_log["date"], errors="coerce"
+    ).dt.date
 
     completed_habits = habit_log[
         (habit_log["email"] == email) &
@@ -57,19 +69,26 @@ if not habit_log.empty and {"email", "date"}.issubset(habit_log.columns):
     ].shape[0]
 
 # =================================================
-# STUDY (MONTHLY)
+# STUDY HOURS (MONTHLY)
 # =================================================
 study_minutes = 0
 
 if not study_log.empty and "minutes" in study_log.columns:
+
+    study_log["email"] = study_log["email"].astype(str).str.strip().str.lower()
+
     date_col = next((c for c in study_log.columns if "date" in c), None)
+
     if date_col:
-        study_log[date_col] = pd.to_datetime(study_log[date_col], errors="coerce")
+
+        study_log[date_col] = pd.to_datetime(
+            study_log[date_col], errors="coerce"
+        )
 
         study_minutes = study_log[
+            (study_log["email"] == email) &
             (study_log[date_col].dt.month == today.month) &
-            (study_log[date_col].dt.year == today.year) &
-            (study_log["email"].astype(str).str.lower() == email)
+            (study_log[date_col].dt.year == today.year)
         ]["minutes"].astype(float).sum()
 
 study_hours = round(study_minutes / 60, 2)
@@ -79,11 +98,15 @@ study_hours = round(study_minutes / 60, 2)
 # =================================================
 total_periods_today = 5
 present_periods_today = 0
-attendance_percent = 0.0
+attendance_percent = 0
 
-if not attendance.empty and {"email", "date"}.issubset(attendance.columns):
-    attendance["email"] = attendance["email"].astype(str).str.lower()
-    attendance["date"] = pd.to_datetime(attendance["date"], errors="coerce").dt.date
+if not attendance.empty and {"email","date"}.issubset(attendance.columns):
+
+    attendance["email"] = attendance["email"].astype(str).str.strip().str.lower()
+
+    attendance["date"] = pd.to_datetime(
+        attendance["date"], errors="coerce"
+    ).dt.date
 
     today_att = attendance[
         (attendance["email"] == email) &
@@ -91,28 +114,38 @@ if not attendance.empty and {"email", "date"}.issubset(attendance.columns):
     ]
 
     present_periods_today = len(today_att)
-    attendance_percent = round((present_periods_today / total_periods_today) * 100, 1)
+
+    attendance_percent = round(
+        (present_periods_today / total_periods_today) * 100, 1
+    )
 
 # =================================================
-# TASKS (CLEAN CALCULATION)
+# TASKS
 # =================================================
 total_tasks = 0
 completed_tasks = 0
 
-if not tasks.empty and {"email", "status"}.issubset(tasks.columns):
+if not tasks.empty and {"email","status"}.issubset(tasks.columns):
 
-    tasks["email"] = tasks["email"].astype(str).str.lower()
+    tasks["email"] = tasks["email"].astype(str).str.strip().str.lower()
+
     tasks["status"] = tasks["status"].astype(str).str.lower()
 
     user_tasks = tasks[tasks["email"] == email]
 
     total_tasks = len(user_tasks)
-    completed_tasks = user_tasks[user_tasks["status"] == "completed"].shape[0]
+
+    completed_tasks = user_tasks[
+        user_tasks["status"] == "completed"
+    ].shape[0]
 
 task_percent = int((completed_tasks / total_tasks) * 100) if total_tasks else 0
 
-# ================= DASHBOARD UI =================
+# =================================================
+# DASHBOARD UI
+# =================================================
 st.title("📘 Student Productivity")
+
 st.write("Welcome back 👋 Track your progress and stay consistent.")
 
 c1, c2, c3, c4 = st.columns(4)
@@ -124,10 +157,18 @@ with c2:
     st.metric("Study Hours (This Month)", f"{study_hours} hrs")
 
 with c3:
-    st.metric("Attendance Today", f"{present_periods_today}/5", f"{attendance_percent}%")
+    st.metric(
+        "Attendance Today",
+        f"{present_periods_today}/5",
+        f"{attendance_percent}%"
+    )
 
 with c4:
-    st.metric("Tasks Completed", f"{task_percent}%", f"{completed_tasks}/{total_tasks}")
+    st.metric(
+        "Tasks Completed",
+        f"{task_percent}%",
+        f"{completed_tasks}/{total_tasks}"
+    )
 
 # =================================================
 # PRODUCTIVITY SCORE
@@ -137,6 +178,7 @@ st.divider()
 score = calculate_productivity(email)
 
 st.subheader("📊 Today's Productivity Score")
+
 st.progress(score / 100)
 
 if score >= 80:
