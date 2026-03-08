@@ -36,28 +36,44 @@ except:
     attendance_log = pd.DataFrame(columns=["email", "date", "period"])
 
 attendance_log.columns = attendance_log.columns.str.strip().str.lower()
+
 attendance_log["email"] = attendance_log["email"].astype(str).str.strip().str.lower()
 
-# ================= PERIOD TIMINGS =================
-from datetime import time
+# convert date properly
+attendance_log["date"] = pd.to_datetime(
+    attendance_log["date"], errors="coerce"
+).dt.date
 
+# remove duplicates
+attendance_log = attendance_log.drop_duplicates(
+    subset=["email", "date", "period"]
+)
+
+# ================= PERIOD TIMINGS =================
 periods = {
-    "Period 1 (13:00 – 14:00)": (time(13, 0), time(14, 0)),
-    "Period 2 (14:00 – 15:00)": (time(14, 0), time(15, 0)),
-    "Period 3 (15:00 – 16:00)": (time(15, 0), time(16, 0)),
-    "Period 4 (16:00 – 17:00)": (time(16, 0), time(17, 0)),
-    "Period 5 (17:00 – 18:00)": (time(17, 0), time(18, 0)),
+    "Period 1": (time(10, 0), time(11, 0)),
+    "Period 2": (time(11, 0), time(12, 0)),
+    "Period 3": (time(12, 0), time(13, 0)),
+    "Period 4": (time(13, 0), time(14, 0)),
+    "Period 5": (time(14, 0), time(15, 0)),
 }
-# (Break removed intentionally)
 
 # ================= TODAY STATUS =================
 today_att = attendance_log[
     (attendance_log["email"] == email) &
-    (attendance_log["date"] == TODAY)
+    (attendance_log["date"] == date.today())
 ]
 
 st.title("🗓 Attendance Tracker")
-st.metric("Today's Attendance", f"{len(today_att)} / {PERIODS_PER_DAY}")
+
+today_count = len(today_att)
+today_percent = (today_count / PERIODS_PER_DAY) * 100
+
+st.metric(
+    "Today's Attendance",
+    f"{today_count} / {PERIODS_PER_DAY}",
+    f"{today_percent:.0f}%"
+)
 
 # ================= MARK ATTENDANCE =================
 valid_periods = [
@@ -66,20 +82,38 @@ valid_periods = [
 ]
 
 if valid_periods:
+
     selected = st.selectbox("Select Period", valid_periods)
 
     if st.button("📍 Mark Attendance"):
-        new_row = pd.DataFrame([{
-            "email": email,
-            "date": TODAY,
-            "period": selected
-        }])
 
-        attendance_log = pd.concat([attendance_log, new_row], ignore_index=True)
-        safe_write(DB, {"Attendance": attendance_log})
+        # prevent duplicate marking
+        if not (
+            (attendance_log["email"] == email) &
+            (attendance_log["date"] == date.today()) &
+            (attendance_log["period"] == selected)
+        ).any():
 
-        st.success("Attendance marked successfully ✅")
-        st.rerun()
+            new_row = pd.DataFrame([{
+                "email": email,
+                "date": date.today(),
+                "period": selected
+            }])
+
+            attendance_log = pd.concat(
+                [attendance_log, new_row],
+                ignore_index=True
+            )
+
+            safe_write(DB, {"Attendance": attendance_log})
+
+            st.success("Attendance marked successfully ✅")
+
+            st.rerun()
+
+        else:
+            st.warning("Attendance already marked for this period.")
+
 else:
     st.info("No active periods right now.")
 
@@ -88,18 +122,23 @@ st.divider()
 
 user_all = attendance_log[attendance_log["email"] == email]
 
-# A = attended classes
+# Attended classes
 A = len(user_all)
 
-# T = classes conducted till today
-unique_days = user_all["date"].nunique()
+# ================= TOTAL CLASSES LOGIC =================
+if not user_all.empty:
 
-if unique_days == 0:
-    T = PERIODS_PER_DAY
+    first_day = user_all["date"].min()
+    today = date.today()
+
+    total_days = (today - first_day).days + 1
+
+    T = total_days * PERIODS_PER_DAY
+
 else:
-    T = unique_days * PERIODS_PER_DAY
+    T = 0
 
-attendance_percent = (A / T) * 100
+attendance_percent = (A / T) * 100 if T > 0 else 0
 
 st.metric("Overall Attendance %", f"{attendance_percent:.2f}%")
 st.caption(f"Attended Classes: {A} / {T}")
@@ -110,50 +149,75 @@ st.caption(f"Attended Classes: {A} / {T}")
 st.subheader("🎯 Attendance Shortage Predictor (75% Rule)")
 
 if attendance_percent >= 75:
+
     st.success("✅ You are safe! Your attendance is above 75%.")
+
 else:
 
-    # x = classes to attend continuously
-    classes_needed = math.ceil((REQUIRED_PERCENT*T - A) / (1 - REQUIRED_PERCENT))
+    if T == 0:
+        st.info("Attendance data not available yet.")
+    else:
 
-    if classes_needed < 0:
-        classes_needed = 0
+        classes_needed = math.ceil(
+            (REQUIRED_PERCENT * T - A) / (1 - REQUIRED_PERCENT)
+        )
 
-    st.error(f"⚠ Your attendance is {attendance_percent:.1f}%")
+        if classes_needed < 0:
+            classes_needed = 0
 
-    st.warning(
-        f"You must attend the next **{classes_needed} classes continuously** "
-        f"to reach the safe 75% attendance level."
-    )
+        st.error(f"⚠ Your attendance is {attendance_percent:.1f}%")
 
-    new_percent = ((A + classes_needed) / (T + classes_needed)) * 100
-    st.info(f"After attending them, your attendance will become approximately **{new_percent:.1f}%**.")
+        st.warning(
+            f"You must attend the next **{classes_needed} classes continuously** "
+            f"to reach the safe 75% attendance level."
+        )
+
+        new_percent = ((A + classes_needed) / (T + classes_needed)) * 100
+
+        st.info(
+            f"After attending them, your attendance will become approximately "
+            f"**{new_percent:.1f}%**."
+        )
 
 # =====================================================
 # 🎒 SAFE BUNK PLANNER
 # =====================================================
 st.divider()
+
 st.subheader("🎒 Safe Bunk Planner (75% Rule)")
 
-safe_bunks = math.floor((A / REQUIRED_PERCENT) - T)
+if T == 0:
 
-if safe_bunks > 0:
-    st.success(
-        f"You can safely miss **{safe_bunks} classes** and still stay above 75% attendance."
-    )
-
-    future_percent = (A / (T + safe_bunks)) * 100
-    st.info(
-        f"If you skip {safe_bunks} classes, your attendance will become approximately **{future_percent:.1f}%**."
-    )
-
-elif safe_bunks == 0:
-    st.warning(
-        "You cannot miss any classes now. Missing even one class will drop you below 75% attendance."
-    )
+    st.info("Not enough data to calculate safe bunks yet.")
 
 else:
-    shortage = abs(safe_bunks)
-    st.error(
-        f"⚠ You are below safe attendance. You must attend at least **{shortage} more classes** to become safe."
-    )
+
+    safe_bunks = math.floor((A / REQUIRED_PERCENT) - T)
+
+    if safe_bunks > 0:
+
+        st.success(
+            f"You can safely miss **{safe_bunks} classes** and still stay above 75% attendance."
+        )
+
+        future_percent = (A / (T + safe_bunks)) * 100
+
+        st.info(
+            f"If you skip {safe_bunks} classes, your attendance will become approximately "
+            f"**{future_percent:.1f}%**."
+        )
+
+    elif safe_bunks == 0:
+
+        st.warning(
+            "You cannot miss any classes now. Missing even one class will drop you below 75% attendance."
+        )
+
+    else:
+
+        shortage = abs(safe_bunks)
+
+        st.error(
+            f"⚠ You are below safe attendance. "
+            f"You must attend at least **{shortage} more classes** to become safe."
+        )

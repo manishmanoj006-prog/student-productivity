@@ -10,7 +10,7 @@ if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.switch_page("app.py")
     st.stop()
 
-email = st.session_state.email
+email = st.session_state.email.strip().lower()
 DB = "data/database.xlsx"
 
 st.title("📚 Study Time Tracker")
@@ -35,7 +35,9 @@ if st.button("Add Subject"):
 
     subjects.columns = [c.strip().lower() for c in subjects.columns]
 
-    # check duplicate
+    if "email" in subjects.columns:
+        subjects["email"] = subjects["email"].astype(str).str.strip().str.lower()
+
     duplicate = (
         (subjects["email"] == email) &
         (subjects["subject"].str.lower() == new_subject.lower())
@@ -44,9 +46,10 @@ if st.button("Add Subject"):
     if duplicate.any():
         st.info("Subject already added.")
     else:
+
         new_row = pd.DataFrame({
             "email": [email],
-            "subject": [new_subject]
+            "subject": [new_subject.strip()]
         })
 
         subjects = pd.concat([subjects, new_row], ignore_index=True)
@@ -67,7 +70,10 @@ st.subheader("⏱ Record Study Time")
 try:
     subjects = pd.read_excel(DB, sheet_name="Subjects")
     subjects.columns = [c.strip().lower() for c in subjects.columns]
+    subjects["email"] = subjects["email"].astype(str).str.strip().str.lower()
+
     user_subjects = subjects[subjects["email"] == email]["subject"].tolist()
+
 except:
     user_subjects = []
 
@@ -75,7 +81,6 @@ if len(user_subjects) == 0:
     st.warning("Add at least one subject first.")
     st.stop()
 
-# dropdown
 subject = st.selectbox("Select Subject", user_subjects)
 
 minutes = st.number_input(
@@ -97,10 +102,12 @@ if st.button("Save Study Time"):
 
     study_log.columns = [c.strip().lower() for c in study_log.columns]
 
-    if not study_log.empty:
-        study_log["date"] = pd.to_datetime(study_log["date"]).dt.date
+    if "email" in study_log.columns:
+        study_log["email"] = study_log["email"].astype(str).str.strip().str.lower()
 
-    # check if subject already recorded today
+    if not study_log.empty:
+        study_log["date"] = pd.to_datetime(study_log["date"], errors="coerce").dt.date
+
     existing = (
         (study_log["email"] == email) &
         (study_log["subject"] == subject) &
@@ -108,20 +115,27 @@ if st.button("Save Study Time"):
     )
 
     if existing.any():
+
         study_log.loc[existing, "minutes"] = minutes
         st.info("Today's study time updated.")
+
     else:
+
         new_row = pd.DataFrame({
             "email": [email],
             "subject": [subject],
             "minutes": [minutes],
             "date": [today]
         })
+
         study_log = pd.concat([study_log, new_row], ignore_index=True)
+
         st.success("Study time saved!")
 
     with pd.ExcelWriter(DB, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
         study_log.to_excel(writer, sheet_name="StudyLog", index=False)
+
+st.divider()
 
 # ======================================================
 # 📅 TODAY LOG
@@ -131,7 +145,9 @@ st.subheader("Today's Study Record")
 try:
     study_log = pd.read_excel(DB, sheet_name="StudyLog")
     study_log.columns = [c.strip().lower() for c in study_log.columns]
-    study_log["date"] = pd.to_datetime(study_log["date"]).dt.date
+
+    study_log["email"] = study_log["email"].astype(str).str.strip().str.lower()
+    study_log["date"] = pd.to_datetime(study_log["date"], errors="coerce").dt.date
 
     today_log = study_log[
         (study_log["email"] == email) &
@@ -141,8 +157,7 @@ try:
     if today_log.empty:
         st.info("No study recorded today.")
     else:
-        st.dataframe(today_log[["subject", "minutes"]])
+        st.dataframe(today_log[["subject", "minutes"]], use_container_width=True)
 
 except:
     st.info("No study data available.")
- 

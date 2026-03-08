@@ -83,11 +83,18 @@ st.markdown(
 tab_login, tab_register = st.tabs(["Login", "Register"])
 
 # ================== LOGIN ==================
+# ================== LOGIN ==================
 with tab_login:
-    login_email = st.text_input("Email", key="login_email").strip().lower()
-    login_password = st.text_input("Password", type="password", key="login_password")
 
-    if st.button("Login"):
+    with st.form("login_form"):
+
+        login_email = st.text_input("Email").strip().lower()
+        login_password = st.text_input("Password", type="password")
+
+        login_btn = st.form_submit_button("Login")
+
+    if login_btn:
+
         with get_conn() as conn:
             cur = conn.execute(
                 "SELECT * FROM users WHERE email=? AND password=?",
