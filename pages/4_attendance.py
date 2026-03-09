@@ -51,11 +51,11 @@ attendance_log = attendance_log.drop_duplicates(
 
 # ================= PERIOD TIMINGS =================
 periods = {
-    "Period 1": (time(4, 0), time(5, 0)),
-    "Period 2": (time(5, 0), time(6, 0)),
-    "Period 3": (time(6, 0), time(7, 0)),
-    "Period 4": (time(7, 0), time(8, 0)),
-    "Period 5": (time(8, 0), time(9, 0)),
+    "Period 1": (time(10, 0), time(11, 0)),
+    "Period 2": (time(11, 0), time(12, 0)),
+    "Period 3": (time(12, 0), time(13, 0)),
+    "Period 4": (time(13, 0), time(14, 0)),
+    "Period 5": (time(14, 0), time(15, 0)),
 }
 # ================= TODAY STATUS =================
 today_att = attendance_log[
